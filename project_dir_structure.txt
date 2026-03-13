@@ -1,0 +1,29 @@
+.
+├── build.rs
+├── Cargo.lock
+├── Cargo.toml
+├── data
+│   └── ca_list.jwt
+├── examples
+│   └── basic_usage.rs
+├── LICENSE-APACHE
+├── LICENSE-MIT
+├── project_dir_structure.txt
+├── README.md
+├── src
+│   ├── constants.rs
+│   ├── downloader.rs
+│   ├── error.rs
+│   ├── lib.rs
+│   ├── loader.rs
+│   ├── logging.rs
+│   ├── main.rs
+│   ├── parser.rs
+│   └── types.rs
+└── tests
+    ├── common
+    │   └── mod.rs
+    ├── lib_tests.rs
+    └── parser_tests.rs
+
+5 directories, 21 files
