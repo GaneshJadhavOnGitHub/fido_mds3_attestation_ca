@@ -67,7 +67,7 @@ fn main() {
     #[derive(Parser)]
     enum Commands {
         /// Download the latest FIDO MDS3 attestation blob from the official FIDO website.
-        ///
+        /// 
         /// The new blob will be available immediately on next application restart.
         /// To embed it permanently in the binary, recompile with `cargo build --release`.
         Download {

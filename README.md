@@ -55,27 +55,27 @@ to verify authenticator attestation statements.
 * Supports both **AAGUID (FIDO2)** and **AAID (U2F)**
 * Handles **invalid or malformed certificates safely**
 * Logging support for production environments
-* Simple API with minimal configuration
-* Works **offline once metadata is downloaded**
+* Easy to use with minimal configuration
+
 
 ---
+
 
 # How it works - Metadata Strategy (Download → Build → Fallback)
 
 The crate uses a **three-step strategy** for loading metadata:
 
-1. **Download (recommended)**
-   Use the provided CLI to download the latest **MDS3 BLOB**.
+1. **Download - (recommended)**
+   Use the provided CLI tool to download the latest **MDS3 BLOB**.
 
-2. **Build**
+2. **Build -**
    The library parses the BLOB and builds a list of **attestation trust anchors** and caches this list for subsequent calls.
 
-3. **Fallback**
+3. **Fallback -**
    If a local BLOB is not available, the crate falls back to an **embedded metadata snapshot** so applications can still run.
 
 This approach provides:
 
-* **Offline operation**
 * **Predictable startup**
 * **Safe fallback when metadata is unavailable**
 
@@ -83,25 +83,28 @@ This approach provides:
 
 # Important Usage Recommendation
 
-Before using this crate in production:
+To use this crate in production:
 
-1. **Download the latest metadata BLOB using the CLI binary**
-2. **Restart your application** so the newly downloaded BLOB is loaded
+1. **Download the latest metadata BLOB** using the CLI tool
+2. **Restart your application** to load the newly downloaded BLOB
+3. *(Optional)* **Recompile with `cargo build --release`** to embed the blob permanently in the binary
 
-💡 Pro-Tip: Call ```build_ca_list``` at startup to "warm up" the cache and ensure microsecond response times for all subsequent requests.
+
+💡 **Pro tip:**  Call `build_ca_list()` once at startup, before your server begins listening. 
+This "warms up" the cache so attestation trust anchors are ready for all subsequent requests.
 
 Example workflow:
 
 ```
-download metadata → restart application → build CA list
+download metadata → restart application → build CA list (at startup)
 ```
 
 ---
 
-# Binary: Downloads Latest FIDO MDS3 BLOB
+# Binary: To download Latest FIDO MDS3 BLOB
 
 This crate provides a **CLI tool** that downloads the latest
-FIDO Metadata Service BLOB.
+FIDO Metadata Service BLOB from the official FIDO website.
 
 ### Install the binary
 
@@ -121,13 +124,13 @@ This saves the latest **signed MDS3 metadata BLOB** locally.
 
 # Metadata Refresh Recommendation
 
-According to FIDO guidance, metadata does **not change frequently**.
+According to FIDO guidance, metadata BLOB **does not change frequently**.
 
-Recommended approach:
+**Recommended approach:**
 
-* **Download the BLOB once per month**
-* Cache the metadata locally
-* Periodically refresh to obtain newly certified authenticators
+- **Download fresh metadata once per month** to pick up newly certified authenticators.
+- **Cache the metadata locally** for best performance.
+
 
 Reference: https://fidoalliance.org/metadata/
 
@@ -208,7 +211,7 @@ webauthn.start_attested_passkey_registration(
     username,
     display_name,
     Some(exclude_credentials),
-    ca_list,                   // Can be used here directly
+    ca_list,                   // **Can be used here directly**
     Some(ui_hint_authenticator_attachment),   
 );
 ```
@@ -222,15 +225,7 @@ using trusted roots extracted from the FIDO Metadata Service.
 
 The crate supports structured logging via `env_logger`.
 
-Example:
-
-```
-use fido_mds3_attestation_ca::logging;
-
-fn main() {
-    logging::init_logger();
-}
-```
+Just initialize ```env_logger``` in your application.
 
 ---
 
@@ -239,7 +234,7 @@ fn main() {
 This crate is useful if you are building:
 
 * WebAuthn authentication servers
-    * Passkey infrastructure
+* Passkey infrastructure
 * FIDO2 verification services
 * Security gateways validating authenticator devices
 * Research tools analyzing FIDO authenticators
