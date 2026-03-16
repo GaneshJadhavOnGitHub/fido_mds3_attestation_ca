@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial release
-- Parse FIDO MDS3 JWT blobs in pure Rust (no Python preprocessing)
+- Parse FIDO MDS3 JWT blob in pure Rust
 - Extract attestation trust anchors for FIDO2 (AAGUID) and U2F (AAID) authenticators
 - Build deduplicated CA list from metadata entries
 - CLI binary `fido_mds3_attestation_ca` for downloading latest metadata BLOB
