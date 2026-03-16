@@ -127,15 +127,15 @@ pub enum FidoMds3AttestationCaError {
 ///
 /// This alias simplifies function signatures across the crate by replacing
 /// verbose `Result<T, FidoMds3AttestationCaError>` declarations with
-/// `MdsResult<T>`.
+/// `FidoMds3AttestationCaResult<T>`.
 ///
 /// # Example
 ///
 /// ```rust
-/// use fido_mds3_attestation_ca::error::MdsResult;
+/// use fido_mds3_attestation_ca::error::FidoMds3AttestationCaResult;
 ///
-/// fn example() -> MdsResult<()> {
+/// fn example() -> FidoMds3AttestationCaResult<()> {
 ///     Ok(())
 /// }
 /// ```
-pub type MdsResult<T> = Result<T, FidoMds3AttestationCaError>;
+pub type FidoMds3AttestationCaResult<T> = Result<T, FidoMds3AttestationCaError>;

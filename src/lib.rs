@@ -372,7 +372,7 @@ impl ParsedBlob {
                 continue;
             }
         }
-        log::info!("Attestation trust anchor list generated successfully");
+        log::info!("Attestation trust anchor list generated successfully!");
         Ok(builder.build())
     }
 

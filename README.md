@@ -54,8 +54,8 @@ to verify authenticator attestation statements.
 * Filter **FIDO certified authenticators**
 * Supports both **AAGUID (FIDO2)** and **AAID (U2F)**
 * Handles **invalid or malformed certificates safely**
-* Logging support for production environments
-* Easy to use with minimal configuration
+* **Logging support** for production environments
+* **Easy to use** with minimal configuration
 
 
 ---
@@ -77,6 +77,7 @@ The crate uses a **three-step strategy** for loading metadata:
 This approach provides:
 
 * **Predictable startup**
+* **Improves performance**
 * **Safe fallback when metadata is unavailable**
 
 ---
@@ -87,7 +88,7 @@ To use this crate in production:
 
 1. **Download the latest metadata BLOB** using the CLI tool
 2. **Restart your application** to load the newly downloaded BLOB
-3. *(Optional)* **Recompile with `cargo build --release`** to embed the blob permanently in the binary
+3. *(Optional)* **Recompile with `cargo build --release`** to embed the new blob permanently in the crate
 
 
 💡 **Pro tip:**  Call `build_ca_list()` once at startup, before your server begins listening. 
@@ -117,8 +118,20 @@ cargo install fido_mds3_attestation_ca
 ```
 fido_mds3_attestation_ca download
 ```
-
 This saves the latest **signed MDS3 metadata BLOB** locally.
+
+
+### View download help
+
+```
+fido_mds3_attestation_ca download --help
+```
+
+### Run with logging
+
+```
+RUST_LOG=info fido_mds3_attestation_ca download
+```
 
 ---
 
@@ -237,7 +250,6 @@ This crate is useful if you are building:
 * Passkey infrastructure
 * FIDO2 verification services
 * Security gateways validating authenticator devices
-* Research tools analyzing FIDO authenticators
 
 ---
 

@@ -67,9 +67,9 @@ fn main() {
     #[derive(Parser)]
     enum Commands {
         /// Download the latest FIDO MDS3 attestation blob from the official FIDO website.
-        /// 
+        ///
         /// The new blob will be available immediately on next application restart.
-        /// To embed it permanently in the binary, recompile with `cargo build --release`.
+        /// To embed it permanently in the crate, recompile with `cargo build --release`.
         Download {
             /// Output file path (default: platform-specific user data directory)
             #[arg(short, long)]
@@ -315,16 +315,14 @@ mod download {
             Ok(_) => {
                 if let Ok(file) = File::open(EMBEDDED_JWT_PATH) {
                     if let Err(e) = file.sync_all() {
-                        log::warn!("⚠ Failed to sync file to disk: {}", e);
+                        log::warn!("⚠ Failed to sync file to disk: {e}");
                     }
                 }
                 log::info!("✓ Updated embedded JWT: {EMBEDDED_JWT_PATH}");
                 log::info!(
-                    "  → To embed this update permanently into binary, recompile with: cargo build --release"
+                    "  → (Optional) To embed this update permanently into crate, recompile with: cargo build --release"
                 );
-                log::info!(
-                    "    Until then, the newly downloaded blob will be used on next restart"
-                );
+                log::info!("    The newly downloaded blob will be loaded on next restart");
             }
             Err(e) => {
                 log::error!("❌ Failed to copy JWT to embedded path: {e}");
