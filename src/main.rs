@@ -66,7 +66,10 @@ fn main() {
     /// FIDO Metadata Service (MDS3) blob.
     #[derive(Parser)]
     enum Commands {
-        /// Download latest FIDO MDS3 blob from FIDO website.
+        /// Download the latest FIDO MDS3 attestation blob from the official FIDO website.
+        ///
+        /// The new blob will be available immediately on next application restart.
+        /// To embed it permanently in the binary, recompile with `cargo build --release`.
         Download {
             /// Output file path (default: platform-specific user data directory)
             #[arg(short, long)]
@@ -95,10 +98,11 @@ fn main() {
 
 #[cfg(feature = "cli")]
 mod download {
-    use fido_mds3_attestation_ca::constants::BLOB_URL;
+    use fido_mds3_attestation_ca::constants::{BLOB_URL, EMBEDDED_JWT_PATH};
     use fido_mds3_attestation_ca::error::FidoMds3AttestationCaError;
     use fido_mds3_attestation_ca::universal_user_path;
     use indicatif::{ProgressBar, ProgressStyle};
+    use std::fs;
     use std::fs::File;
     use std::io::{Read, Write};
     use std::path::PathBuf;
@@ -306,8 +310,29 @@ mod download {
 
         pb.finish_with_message("Download complete");
 
-        log::info!("✓ Downloaded FIDO MDS3 blob successfully!");
-        eprintln!("✓ Downloaded FIDO MDS3 blob successfully!");
+        // Copy downloaded JWT to embedded location (replaces old one)
+        match fs::copy(&jwt_path, EMBEDDED_JWT_PATH) {
+            Ok(_) => {
+                if let Ok(file) = File::open(EMBEDDED_JWT_PATH) {
+                    if let Err(e) = file.sync_all() {
+                        log::warn!("⚠ Failed to sync file to disk: {}", e);
+                    }
+                }
+                log::info!("✓ Updated embedded JWT: {EMBEDDED_JWT_PATH}");
+                log::info!(
+                    "  → To embed this update permanently into binary, recompile with: cargo build --release"
+                );
+                log::info!(
+                    "    Until then, the newly downloaded blob will be used on next restart"
+                );
+            }
+            Err(e) => {
+                log::error!("❌ Failed to copy JWT to embedded path: {e}");
+                // Continue - download succeeded, just embedding update failed
+            }
+        }
+        log::info!("✓ FIDO MDS3 blob saved to: {}", jwt_path.display());
+        println!("✓ FIDO MDS3 blob saved to: {}", jwt_path.display());
 
         Ok(())
     }

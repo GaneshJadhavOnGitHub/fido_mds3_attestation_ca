@@ -20,39 +20,119 @@ use super::types::ParsedBlob;
 use super::universal_user_path;
 use super::{embedded_ca_list, parser};
 
+use once_cell::sync::OnceCell;
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 
-/// Parses a metadata blob file and converts it into a [`ParsedBlob`].
+/// Global cache for the user-provided parsed metadata blob.
 ///
-/// This function reads the file contents from the provided path and
-/// invokes the crate parser to convert the raw metadata blob into
-/// structured data.
+/// This [`OnceCell`] stores the parsed [`ParsedBlob`] loaded from a
+/// user-specified FIDO Metadata Service (MDS3) JWT file.
+///
+/// The blob is initialized **lazily on first access** through
+/// [`get_or_init_blob_cache`]. Once initialized, the parsed metadata
+/// is reused for the lifetime of the process, avoiding repeated disk
+/// reads and parsing.
+///
+/// Internally the blob is wrapped in [`Arc`] so it can be shared safely
+/// across threads without copying the underlying data.
+static USER_PARSED: OnceCell<Arc<ParsedBlob>> = OnceCell::new();
+
+/// Reads a FIDO Metadata Service (MDS3) JWT blob from disk and parses it.
+///
+/// This helper function:
+///
+/// 1. Reads the JWT file from the provided filesystem path.
+/// 2. Passes the JWT string to the crate's metadata parser.
+/// 3. Returns the resulting [`ParsedBlob`] structure.
+///
+/// This function **does not cache results**. It is intended to be used
+/// internally by [`get_or_init_blob_cache`] during the initial cache
+/// initialization.
 ///
 /// # Parameters
 ///
-/// * `path` - Path to the metadata blob file.
+/// * `jwt_path` — Filesystem path to the MDS3 JWT metadata blob.
 ///
 /// # Returns
 ///
-/// * `Ok(Arc<ParsedBlob>)` if parsing succeeds.
-/// * `Err(FidoMds3AttestationCaError)` if the file cannot be read
-///   or if parsing fails.
+/// * `Ok(ParsedBlob)` – Successfully parsed metadata blob.
+/// * `Err(FidoMds3AttestationCaError)` – If the file cannot be read
+///   or if parsing the metadata blob fails.
 ///
 /// # Errors
 ///
-/// Returns [`FidoMds3AttestationCaError::FileNotFoundError`] if the
-/// file cannot be read from disk.
-fn call_parser(path: &Path) -> Result<Arc<ParsedBlob>, FidoMds3AttestationCaError> {
-    log::debug!("Attempting to parse blob from {path:?}");
+/// * [`FidoMds3AttestationCaError::IoError`] – If the JWT file cannot be read.
+/// * Any parsing error returned by the crate's metadata parser.
+///
+/// # Logging
+///
+/// * Emits a `debug` log when reading the JWT file.
+/// * Emits an `error` log if parsing fails.
+pub fn load_blob_and_call_parser<P: AsRef<Path>>(
+    jwt_path: P,
+) -> Result<ParsedBlob, FidoMds3AttestationCaError> {
+    log::debug!("Reading JWT from: {}", jwt_path.as_ref().display());
 
-    let content = std::fs::read_to_string(path)
-        .inspect_err(|e| log::error!("File not found error : {e}"))
-        .map_err(|_| FidoMds3AttestationCaError::FileNotFoundError(path.to_path_buf()))?;
+    let jwt_data =
+        fs::read_to_string(&jwt_path).map_err(|e| FidoMds3AttestationCaError::IoError {
+            path: jwt_path.as_ref().display().to_string(),
+            reason: e.to_string(),
+        })?;
 
-    let parsed = parser::parse_blob(&content)?;
-    Ok(Arc::new(parsed))
+    parser::parse_blob(&jwt_data).map_err(|e| {
+        log::error!("Failed to parse user CA list: {e}");
+        e
+    })
+}
+
+#[allow(rustdoc::private_intra_doc_links)]
+/// Lazily loads and caches a user-provided FIDO Metadata Service (MDS3) blob.
+///
+/// This function initializes the global [`USER_PARSED`] cache on first access
+/// by reading and parsing the JWT metadata file from the provided path.
+/// Subsequent calls return the **cached parsed blob** without re-reading
+/// the file or re-parsing the metadata.
+///
+/// The parsed blob is wrapped in [`Arc`] to allow efficient shared access
+/// across threads.
+///
+/// # Parameters
+///
+/// * `jwt_path` — Filesystem path to the MDS3 JWT metadata blob.
+///
+/// # Returns
+///
+/// * `Ok(Arc<ParsedBlob>)` – A shared reference to the parsed metadata blob.
+/// * `Err(FidoMds3AttestationCaError)` – If reading or parsing the blob fails.
+///
+/// # Behavior
+///
+/// * On the **first call**, the JWT file is read from disk and parsed.
+/// * On **subsequent calls**, the cached blob is returned immediately,
+///   avoiding disk I/O and parsing overhead.
+///
+/// # Logging
+///
+/// * Logs successful initialization of the cache at `info` level.
+///
+/// # Example
+///
+/// ```ignore
+/// let blob = get_or_init_blob_cache("/home/user/.local/share/fido_mds3_attestation_ca/ca_list.jwt")?;
+/// println!("Loaded {} metadata entries", blob.cas.len());
+/// ```
+pub fn get_or_init_blob_cache<P: AsRef<Path>>(
+    jwt_path: P,
+) -> Result<Arc<ParsedBlob>, FidoMds3AttestationCaError> {
+    USER_PARSED
+        .get_or_try_init(|| {
+            let parsed = load_blob_and_call_parser(jwt_path)?;
+            log::info!("User CA list parsed and cached successfully.");
+            Ok(Arc::new(parsed))
+        })
+        .cloned()
 }
 
 /// Loads the FIDO MDS3 metadata blob using a resilient fallback strategy.
@@ -94,11 +174,11 @@ pub fn load_jwt() -> Result<Arc<ParsedBlob>, FidoMds3AttestationCaError> {
     let jwt_path = universal_user_path()?;
     log::debug!("Universal path resolved to {jwt_path:?}");
 
-    // 1️⃣ Try cached blob
+    // 1️⃣ Try blob at universal use path.
     if jwt_path.exists() {
         log::debug!("Cached blob found. Attempting parse...");
 
-        match call_parser(&jwt_path) {
+        match get_or_init_blob_cache(&jwt_path) {
             Ok(parsed) => {
                 log::debug!("Cached blob parsed successfully.");
                 return Ok(parsed);
@@ -120,7 +200,7 @@ pub fn load_jwt() -> Result<Arc<ParsedBlob>, FidoMds3AttestationCaError> {
         Ok(downloaded_path) => {
             log::debug!("Download successful. File saved to {downloaded_path:?}",);
 
-            match call_parser(&downloaded_path) {
+            match get_or_init_blob_cache(&downloaded_path) {
                 Ok(parsed) => {
                     log::debug!("Downloaded blob parsed successfully.");
                     return Ok(parsed);

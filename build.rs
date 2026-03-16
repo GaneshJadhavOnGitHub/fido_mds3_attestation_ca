@@ -1,6 +1,6 @@
 //! Build module for fido_mds3_attestation_ca
 
-use std::fs;
+use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::PathBuf;
 use std::time::Duration;
@@ -10,6 +10,9 @@ const BLOB_URL: &str = "https://mds3.fidoalliance.org/";
 
 /// Blob file name to be used.
 const BLOB_FILE_NAME: &str = "ca_list.jwt";
+
+/// Path for copying after downloading.
+const EMBEDDED_JWT_PATH: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/data/ca_list.jwt");
 
 /// Initializes logging for the build script.
 ///
@@ -429,8 +432,26 @@ fn download_blob(target: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
     // Remove lock file
     let _ = fs::remove_file(lock_path);
 
+    match fs::copy(&target, EMBEDDED_JWT_PATH) {
+        Ok(_) => {
+            if let Ok(file) = File::open(EMBEDDED_JWT_PATH) {
+                if let Err(e) = file.sync_all() {
+                    log::warn!("⚠ Failed to sync file to disk: {}", e);
+                }
+            }
+            log::info!("✓ Updated embedded JWT: {EMBEDDED_JWT_PATH}");
+            log::info!(
+                "  → To embed this update permanently into binary, recompile with: cargo build --release"
+            );
+            log::info!("    Until then, the newly downloaded blob will be used on next restart");
+        }
+        Err(e) => {
+            log::error!("❌ Failed to copy JWT to embedded path: {e}");
+            // Continue - download succeeded, just embedding update failed
+        }
+    }
     //println!("cargo:warning=[Build Info] Downloader invoked successfully!");
-    log::info!("Downloaded successfully!");
+    log::info!("Downloaded successfully at {target:?}");
 
     Ok(())
 }

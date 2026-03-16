@@ -68,7 +68,7 @@ The crate uses a **three-step strategy** for loading metadata:
    Use the provided CLI to download the latest **MDS3 BLOB**.
 
 2. **Build**
-   The library parses the BLOB and builds a list of **attestation trust anchors**.
+   The library parses the BLOB and builds a list of **attestation trust anchors** and caches this list for subsequent calls.
 
 3. **Fallback**
    If a local BLOB is not available, the crate falls back to an **embedded metadata snapshot** so applications can still run.
@@ -87,6 +87,8 @@ Before using this crate in production:
 
 1. **Download the latest metadata BLOB using the CLI binary**
 2. **Restart your application** so the newly downloaded BLOB is loaded
+
+💡 Pro-Tip: Call ```build_ca_list``` at startup to "warm up" the cache and ensure microsecond response times for all subsequent requests.
 
 Example workflow:
 

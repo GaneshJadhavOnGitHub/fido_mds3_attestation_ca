@@ -23,14 +23,15 @@ use once_cell::sync::Lazy;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::sync::OnceLock;
 use uuid::Uuid;
 use webauthn_rs::prelude::{AttestationCaList, AttestationCaListBuilder};
 
-use constants::EMBEDDED_JWT;
 use error::FidoMds3AttestationCaError;
 use types::{AttestationFilter, ParsedBlob};
 
-use crate::constants::BLOB_FILE_NAME;
+use constants::BLOB_FILE_NAME;
+use constants::EMBEDDED_JWT;
 
 pub mod constants;
 pub mod downloader;
@@ -39,6 +40,45 @@ pub mod loader;
 pub mod logging;
 pub mod parser;
 pub mod types;
+
+/// In-memory cache for the generated **attestation trust anchor list**.
+///
+/// This [`OnceLock`] stores the [`AttestationCaList`] produced when
+/// [`AttestationFilter::TrustAnchors`] is requested via [`build_ca_list`].
+///
+/// The list is computed **only once during the lifetime of the process**.
+/// On the first request, the crate loads the FIDO Metadata Service (MDS3)
+/// blob, extracts all valid attestation trust anchors, and stores the
+/// resulting list here.
+///
+/// Subsequent calls return the cached list immediately, avoiding:
+///
+/// - Re-loading the metadata blob
+/// - Re-parsing the metadata
+/// - Re-building the trust anchor list
+///
+/// This significantly improves performance since the MDS3 blob can be
+/// several megabytes in size.
+///
+/// [`OnceLock`] guarantees thread-safe one-time initialization.
+static TRUST_ANCHORS_CACHE: OnceLock<AttestationCaList> = OnceLock::new();
+
+/// In-memory cache for the generated **FIDO-certified attestation trust anchors**.
+///
+/// This [`OnceLock`] stores the [`AttestationCaList`] produced when
+/// [`AttestationFilter::FidoCertifiedTrustAnchorsOnly`] is requested via
+/// [`build_ca_list`].
+///
+/// The list is initialized **only once** by extracting trust anchors from
+/// authenticators whose status indicates **FIDO certification** according
+/// to the FIDO Metadata Service (MDS3).
+///
+/// After the first initialization, all subsequent requests reuse the cached
+/// list, eliminating repeated metadata processing and improving runtime
+/// performance.
+///
+/// [`OnceLock`] ensures thread-safe lazy initialization.
+static FIDO_CERTIFIED_CACHE: OnceLock<AttestationCaList> = OnceLock::new();
 
 /// Universal user data path for downloading/storing CA list
 ///
@@ -548,6 +588,10 @@ impl ParsedBlob {
 /// - Download the latest blob from the FIDO Metadata Service
 /// - Fall back to an embedded metadata list if necessary
 ///
+/// To improve performance, the resulting CA lists are **cached in memory**.
+/// Once a list is generated for a specific filter, subsequent calls will
+/// return the cached result without re-parsing the metadata blob.
+///
 /// # Supported Filters
 ///
 /// * [`AttestationFilter::TrustAnchors`]
@@ -580,22 +624,26 @@ impl ParsedBlob {
 /// - FIDO Metadata Service specification: <https://fidoalliance.org/metadata/>
 /// - WebAuthn attestation trust anchors: <https://www.w3.org/TR/webauthn/>
 pub fn build_ca_list(
-    //parsed_blob: &ParsedBlob,
     attestation_filter: AttestationFilter,
 ) -> Result<AttestationCaList, FidoMds3AttestationCaError> {
     match attestation_filter {
         AttestationFilter::TrustAnchors => {
+            // Check cache first
+            if let Some(cached) = TRUST_ANCHORS_CACHE.get() {
+                return Ok(cached.clone());
+            }
+
             match loader::load_jwt() {
                 Ok(ca_list) => {
-                    // Extracting trust anchors; handling the internal Result
                     match ca_list.build_attestation_trust_anchors() {
-                        Ok(result) => Ok(result),
-
+                        Ok(result) => {
+                            // Store in cache and return
+                            let _ = TRUST_ANCHORS_CACHE.set(result.clone());
+                            Ok(result)
+                        }
                         Err(_) => {
                             let extraction_error = "Failed to extract trust anchors.";
-
                             log::error!("{extraction_error}");
-
                             Err(FidoMds3AttestationCaError::ExtractionError(
                                 extraction_error.to_string(),
                             ))
@@ -604,18 +652,24 @@ pub fn build_ca_list(
                 }
                 Err(e) => Err(e),
             }
-        } // AllFidoRegistered End
+        }
         AttestationFilter::FidoCertifiedTrustAnchorsOnly => {
+            // Check cache first
+            if let Some(cached) = FIDO_CERTIFIED_CACHE.get() {
+                return Ok(cached.clone());
+            }
+
             match loader::load_jwt() {
                 Ok(ca_list) => {
-                    // Extracting FIDO certified anchors; handling the internal Result
                     match ca_list.build_fido_certified_trust_anchors() {
-                        Ok(result) => Ok(result),
+                        Ok(result) => {
+                            // Store in cache and return
+                            let _ = FIDO_CERTIFIED_CACHE.set(result.clone());
+                            Ok(result)
+                        }
                         Err(_) => {
                             let extraction_error = "Failed to extract FIDO certified trust anchors";
-
                             log::error!("{extraction_error}");
-
                             Err(FidoMds3AttestationCaError::ExtractionError(
                                 extraction_error.to_string(),
                             ))
@@ -624,6 +678,6 @@ pub fn build_ca_list(
                 }
                 Err(e) => Err(e),
             }
-        } //FidoCertifiedOnly Ends
-    } // match filter end
-} // Function End
+        } // FidoCertifiedTrustAnchorsOnly Block Ends Here.
+    } // Match Filter Ends Here
+} // Function Ends Here 

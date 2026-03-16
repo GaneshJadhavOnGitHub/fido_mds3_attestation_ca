@@ -133,7 +133,7 @@ fn test_loader_file_source_valid() {
     }
 
     // 4. Test loading
-    let result = loader::load_jwt();
+    let result = loader::load_blob_and_call_parser(&real_cache_path);
 
     // 5. Cleanup: Restore the original file
     if let Err(e) = std::fs::remove_file(&real_cache_path) {

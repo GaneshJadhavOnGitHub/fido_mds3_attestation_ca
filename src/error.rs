@@ -69,8 +69,8 @@ pub enum FidoMds3AttestationCaError {
 
     /// Represents generic input/output errors occurring during
     /// filesystem operations such as reading or writing files.
-    #[error("IO error occurred: {0}")]
-    IoError(#[from] std::io::Error),
+    #[error("IO error at {path}: {reason}")]
+    IoError { path: String, reason: String },
 
     /// Returned when the expected metadata blob file cannot
     /// be found at the specified filesystem path.
