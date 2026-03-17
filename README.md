@@ -157,7 +157,7 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = "0.1.0-alpha"
+fido_mds3_attestation_ca = "0.1.0"
 ```
 
 ---
