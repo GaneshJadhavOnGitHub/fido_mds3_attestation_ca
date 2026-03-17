@@ -39,14 +39,12 @@ base64 = "0.21"
 x509-parser = "0.15"
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "1.0"
-tracing = "0.1"
 once_cell = "1.19"
 dirs = "5.0"
 hex = "0.4"         
 sha2 = "0.10"
 webauthn-rs = "0.5.4"
 uuid = { version = "1.21.0", features = ["v5"] }
-openssl = "0.10.75"
 log = "0.4.29"
 env_logger = "0.11.9"
 # CLI-only dependencies
@@ -74,10 +72,7 @@ env_logger = "0.11.9"
 
 
 [dev-dependencies]
-tempfile = "3.8"        # For temporary test files
-assert_cmd = "2.0"      # For CLI testing
-predicates = "3.0"      # For assertions
-env_logger = "0.11.9"   # Required for binary and build-time logging
+env_logger = "0.11.9"   
 log = "0.4.29"
 
 

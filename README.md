@@ -9,6 +9,8 @@
 A Rust library for extracting **attestation trust anchors** from the
 FIDO Metadata Service (MDS3) for **WebAuthn authenticator verification**.
 
+Compatible with the `webauthn-rs` crate — returns `webauthn_rs::prelude::AttestationCaList` directly.
+
 MSRV: 1.85 (2024 edition)
 
 ####   Crate Overview
@@ -19,7 +21,7 @@ to verify authenticator attestation during WebAuthn registration.
 
 ---
 
-# Why `fido_mds3_attestation_ca`
+## Why `fido_mds3_attestation_ca`
 
 During WebAuthn registration, authenticators may provide an **attestation
 certificate chain** proving the authenticity of the hardware device.
@@ -47,8 +49,8 @@ to verify authenticator attestation statements.
 
 
 ---
+## Features
 
-# Features
 
 * Extract **attestation trust anchors** from FIDO MDS3 metadata
 * Filter **FIDO certified authenticators**
@@ -61,11 +63,11 @@ to verify authenticator attestation statements.
 ---
 
 
-# How it works - Metadata Strategy (Download → Build → Fallback)
+## How it works - Metadata Strategy (Download → Build → Fallback)
 
 The crate uses a **three-step strategy** for loading metadata:
 
-1. **Download - (recommended)**
+1. **Download (Recommended)** - 
    Use the provided CLI tool to download the latest **MDS3 BLOB**.
 
 2. **Build -**
@@ -76,19 +78,19 @@ The crate uses a **three-step strategy** for loading metadata:
 
 This approach provides:
 
-* **Predictable startup**
-* **Improves performance**
+* **Reliable startup**
+* **Better performance**
 * **Safe fallback when metadata is unavailable**
 
 ---
 
-# Important Usage Recommendation
+## Important Usage Recommendation
 
 To use this crate in production:
 
-1. **Download the latest metadata BLOB** using the CLI tool
-2. **Restart your application** to load the newly downloaded BLOB
-3. *(Optional)* **Recompile with `cargo build --release`** to embed the new blob permanently in the crate
+1. **Download the latest metadata BLOB** using the CLI tool.
+2. **Restart your application** to load the newly downloaded BLOB.
+3. *(Optional)* **Recompile with `cargo build --release`** to embed the new blob permanently in the crate.
 
 
 💡 **Pro tip:**  Call `build_ca_list()` once at startup, before your server begins listening. 
@@ -102,20 +104,20 @@ download metadata → restart application → build CA list (at startup)
 
 ---
 
-# Binary: To download Latest FIDO MDS3 BLOB
+## Binary: To download Latest FIDO MDS3 BLOB
 
 This crate provides a **CLI tool** that downloads the latest
 FIDO Metadata Service BLOB from the official FIDO website.
 
 ### Install the binary
 
-```
+```bash
 cargo install fido_mds3_attestation_ca
 ```
 
 ### Download the latest metadata
 
-```
+```bash
 fido_mds3_attestation_ca download
 ```
 This saves the latest **signed MDS3 metadata BLOB** locally.
@@ -123,19 +125,19 @@ This saves the latest **signed MDS3 metadata BLOB** locally.
 
 ### View download help
 
-```
+```bash
 fido_mds3_attestation_ca download --help
 ```
 
 ### Run with logging
 
-```
+```bash
 RUST_LOG=info fido_mds3_attestation_ca download
 ```
 
 ---
 
-# Metadata Refresh Recommendation
+## Metadata Refresh Recommendation by FIDO
 
 According to FIDO guidance, metadata BLOB **does not change frequently**.
 
@@ -149,20 +151,20 @@ Reference: https://fidoalliance.org/metadata/
 
 ---
 
-# Usage (Library)
+## Usage (Library)
 
 Add the crate to your `Cargo.toml`:
 
-```
+```toml
 [dependencies]
 fido_mds3_attestation_ca = "0.1.0-alpha"
 ```
 
 ---
 
-# Example: Extract All Trust Anchors
+## Example: Extract All Trust Anchors
 
-```
+```rust
 use fido_mds3_attestation_ca::build_ca_list;
 use fido_mds3_attestation_ca::types::AttestationFilter;
 
@@ -178,11 +180,11 @@ This extracts **all valid attestation trust anchors** from metadata.
 
 ---
 
-# Example: Extract Only FIDO Certified Trust Anchors
+## Example: Extract Only FIDO Certified Trust Anchors
 
 For security-critical applications, only FIDO Certified Trust Anchors can be extracted.
 
-```
+```rust
 use fido_mds3_attestation_ca::build_ca_list;
 use fido_mds3_attestation_ca::types::AttestationFilter;
 
@@ -199,24 +201,24 @@ This returns only authenticators whose **latest status indicates FIDO Certified*
 
 ---
 
-# Integration with webauthn-rs
+## Integration with webauthn-rs
 
-This crate is designed to integrate directly with:
+This crate is compatible with:
 
-```
+```toml
 webauthn-rs = "0.5.4"
 ```
 
 The generated `AttestationCaList` can be passed directly to
-`start_attested_passkey_registration`.
+`start_attested_passkey_registration` function.
 
 Example:
 
-```
+```rust
 use fido_mds3_attestation_ca::build_ca_list;
 use fido_mds3_attestation_ca::types::AttestationFilter;
 
-let ca_list = build_ca_list(AttestationFilter::TrustAnchors)
+let attestation_ca_list = build_ca_list(AttestationFilter::TrustAnchors)
     .expect("Failed to build CA list");
 
 webauthn.start_attested_passkey_registration(
@@ -224,7 +226,7 @@ webauthn.start_attested_passkey_registration(
     username,
     display_name,
     Some(exclude_credentials),
-    ca_list,                   // **Can be used here directly**
+    attestation_ca_list,                   // **Can be used here directly**
     Some(ui_hint_authenticator_attachment),   
 );
 ```
@@ -234,7 +236,7 @@ using trusted roots extracted from the FIDO Metadata Service.
 
 ---
 
-# Logging
+## Logging
 
 The crate supports structured logging via `env_logger`.
 
@@ -242,7 +244,7 @@ Just initialize ```env_logger``` in your application.
 
 ---
 
-# When should you use this crate?
+## When should you use this crate?
 
 This crate is useful if you are building:
 
@@ -253,14 +255,14 @@ This crate is useful if you are building:
 
 ---
 
-# Quick Links
+## Quick Links
 
 🔗 Source code: [GitHub](https://github.com/GaneshJadhavOnGitHub/fido_mds3_attestation_ca)  
 📦 Rust crate: [crates.io](https://crates.io/crates/fido_mds3_attestation_ca)  
 📚 Documentation: [Docs.rs](https://docs.rs/fido_mds3_attestation_ca/latest)
 
 
-# License
+## License
 
 Licensed under either of
 
@@ -271,26 +273,15 @@ at your option.
 
 ---
 
-# Contributing
+## Contributing
 
 Contributions, bug reports, and suggestions are welcome.
 
-If you find a bug or want to propose an improvement:
-
-1. Open an issue
-2. Fork the repository
-3. Create a feature branch
-4. Submit a pull request
-
-Please ensure:
-
-* `cargo check` passes
-* `cargo fmt` passes
-* `cargo clippy` passes
+Please open an issue first for significant changes.
 
 ---
 
-# Related standards
+## Related standards
 
 * WebAuthn: https://www.w3.org/TR/webauthn/
 * FIDO2: https://fidoalliance.org/specifications/
