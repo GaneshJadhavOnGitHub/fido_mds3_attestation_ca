@@ -123,7 +123,10 @@ fn init_logger() {
 /// - [`universal_user_path`] – Resolves the cross-platform cache path.
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     init_logger();
-
+    if std::env::var("DOCS_RS").is_ok() {
+        println!("cargo:warning=Skipping build steps for docs.rs");
+        return Ok(());
+    }
     println!("cargo:rerun-if-changed=build.rs");
     println!("cargo:rerun-if-changed=data/ca_list.jwt");
 

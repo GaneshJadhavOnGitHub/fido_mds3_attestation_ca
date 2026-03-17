@@ -18,3 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Embedded metadata fallback for offline operation
 - Integration support for `webauthn-rs` crate
 - Structured logging support via `env_logger` crate
+
+## [0.1.1-alpha] - 2025-03-17
+
+- Fixed rust doc generation issue
