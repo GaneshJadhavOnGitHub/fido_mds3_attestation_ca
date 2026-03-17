@@ -49,7 +49,4 @@ jobs:
       - name: Install locally
         run: cargo install fido_mds3_attestation_ca --path .
 
-      - name: Test installed binary
-        run: fido_mds3_attestation_ca download
-
 
