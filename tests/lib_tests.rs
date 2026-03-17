@@ -80,7 +80,7 @@ fn test_loader_embedded_source() {
     let list = match result {
         Ok(v) => v,
         Err(e) => {
-            log::error!("Unexpected error while loading embedded CA list: {:?}", e);
+            log::error!("Unexpected error while loading embedded CA list: {e:?}");
             return;
         }
     };

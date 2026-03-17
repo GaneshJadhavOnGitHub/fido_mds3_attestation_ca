@@ -57,7 +57,6 @@ static INIT: Once = Once::new();
 /// - This helper should be called at the start of tests that rely on
 ///   logging output.
 /// - Internally it uses [`Once`] to guarantee safe global initialization.
-
 pub fn init_logger() {
     INIT.call_once(|| {
         if let Err(e) = env_logger::Builder::from_env(env_logger::Env::default())

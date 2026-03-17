@@ -59,8 +59,7 @@ fn test_sha256_fingerprint() {
 
     assert_eq!(
         fp, expected,
-        "Fingerprint mismatch! Expected {}, got {}",
-        expected, fp
+        "Fingerprint mismatch! Expected {expected}, got {fp}"
     );
 }
 
