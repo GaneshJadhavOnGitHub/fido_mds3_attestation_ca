@@ -70,7 +70,12 @@ pub enum FidoMds3AttestationCaError {
     /// Represents generic input/output errors occurring during
     /// filesystem operations such as reading or writing files.
     #[error("IO error at {path}: {reason}")]
-    IoError { path: String, reason: String },
+    IoError {
+        ///Filesystem path where the I/O operation failed.
+        path: String,
+        ///Underlying error message describing the failure.
+        reason: String,
+    },
 
     /// Returned when the expected metadata blob file cannot
     /// be found at the specified filesystem path.
@@ -93,7 +98,7 @@ pub enum FidoMds3AttestationCaError {
     NoFallbackError,
 
     /// Returned when converting metadata entries into
-    /// WebAuthn compatible structures fails.
+    /// `WebAuthn` compatible structures fails.
     #[error("WebAuthn-rs conversion error: {0}")]
     WebauthnConversionError(String),
 
@@ -110,7 +115,12 @@ pub enum FidoMds3AttestationCaError {
     /// Returned when Base64 decoding fails for a specific
     /// device certificate during metadata processing.
     #[error("Base64 decode failed for device {device_name}: {reason}")]
-    Base64DecodeError { device_name: String, reason: String },
+    Base64DecodeError {
+        ///Human-readable name of the device whose certificate failed to decode.    
+        device_name: String,
+        ///Underlying error message describing the decoding failure.
+        reason: String,
+    },
 
     /// Returned when downloading the metadata blob from the
     /// FIDO Metadata Service fails.

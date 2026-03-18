@@ -1,4 +1,4 @@
-//! # fido_mds3_attestation_ca
+//! # `fido_mds3_attestation_ca`
 //!
 //! A Rust library for parsing the **FIDO Metadata Service (MDS) v3 blob**
 //! and producing an [`AttestationCaList`] compatible with
@@ -83,9 +83,9 @@ static FIDO_CERTIFIED_CACHE: OnceLock<AttestationCaList> = OnceLock::new();
 /// Universal user data path for downloading/storing CA list
 ///
 /// Platform-specific:
-/// - Linux: ~/.local/share/fido_mds3_attestation_ca/ca_list.jwt
-/// - macOS: ~/Library/Application Support/fido_mds3_attestation_ca/ca_list.jwt
-/// - Windows: %LOCALAPPDATA%\fido_mds3_attestation_ca\ca_list.jwt
+/// - Linux: ~/.`local/share/fido_mds3_attestation_ca/ca_list.jwt`
+/// - macOS: ~/`Library/Application Support/fido_mds3_attestation_ca/ca_list.jwt`
+/// - Windows: %`LOCALAPPDATA%\fido_mds3_attestation_ca\ca_list.jwt`
 ///
 /// This function resolves a platform-appropriate user data directory
 /// using the [`dirs`](https://docs.rs/dirs/latest/dirs/) crate and
@@ -192,8 +192,8 @@ pub fn universal_user_path() -> Result<PathBuf, FidoMds3AttestationCaError> {
 ///
 /// # References
 ///
-/// - `once_cell::Lazy`: https://docs.rs/once_cell/latest/once_cell/
-/// - `Arc` shared ownership: https://doc.rust-lang.org/std/sync/struct.Arc.html
+/// - `once_cell::Lazy`: <https://docs.rs/once_cell/latest/once_cell/>
+/// - `Arc` shared ownership: <https://doc.rust-lang.org/std/sync/struct.Arc.html>
 static EMBEDDED_PARSED: Lazy<Arc<ParsedBlob>> = Lazy::new(|| {
     log::debug!("Embedded: Initializing embedded CA list (first access)");
 
@@ -263,7 +263,7 @@ impl ParsedBlob {
     /// and extracts **attestation root certificates** from each authenticator's
     /// metadata statement.
     ///
-    /// These root certificates are used during **WebAuthn attestation verification**
+    /// These root certificates are used during **`WebAuthn` attestation verification**
     /// to validate the authenticity of hardware authenticators.
     ///
     /// # Extraction Process
@@ -291,7 +291,9 @@ impl ParsedBlob {
     ///    - Entries missing metadata or certificates are skipped.
     ///    - Skipped entries are counted internally.
     ///
-    /// # Error Handling
+    /// # Errors
+    ///
+    /// This function may return the following errors:
     ///
     /// * Base64 decoding errors return
     ///   [`FidoMds3AttestationCaError::Base64DecodeError`].
@@ -316,7 +318,7 @@ impl ParsedBlob {
     /// # References
     ///
     /// - FIDO Metadata Service specification: <https://fidoalliance.org/metadata/>
-    /// - WebAuthn attestation model: <https://www.w3.org/TR/webauthn/>
+    /// - `WebAuthn` attestation model: <https://www.w3.org/TR/webauthn/>
     pub fn build_attestation_trust_anchors(
         &self,
     ) -> Result<AttestationCaList, FidoMds3AttestationCaError> {
@@ -413,7 +415,9 @@ impl ParsedBlob {
     ///    - Each certificate is mapped to a stable device identifier
     ///      obtained from \[`extract_uuid_strict`\].
     ///
-    /// # Error Handling
+    /// # Errors
+    ///
+    /// This function may return the following errors:
     ///
     /// * If Base64 decoding fails, a
     ///   [`FidoMds3AttestationCaError::Base64DecodeError`] is returned.
@@ -435,7 +439,7 @@ impl ParsedBlob {
     /// # References
     ///
     /// - FIDO Metadata Service specification: <https://fidoalliance.org/metadata/>
-    /// - WebAuthn specification (Attestation): <https://www.w3.org/TR/webauthn/>
+    /// - `WebAuthn` specification (Attestation): <https://www.w3.org/TR/webauthn/>
     /// - FIDO Certification Levels: <https://fidoalliance.org/certification/>
     pub fn build_fido_certified_trust_anchors(
         &self,
@@ -622,7 +626,7 @@ impl ParsedBlob {
 /// # References
 ///
 /// - FIDO Metadata Service specification: <https://fidoalliance.org/metadata/>
-/// - WebAuthn attestation trust anchors: <https://www.w3.org/TR/webauthn/>
+/// - `WebAuthn` attestation trust anchors: <https://www.w3.org/TR/webauthn/>
 pub fn build_ca_list(
     attestation_filter: AttestationFilter,
 ) -> Result<AttestationCaList, FidoMds3AttestationCaError> {

@@ -157,7 +157,7 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = "0.1.1-alpha"
+fido_mds3_attestation_ca = "0.1.1-alpha.1"
 ```
 
 ---
@@ -257,8 +257,8 @@ This crate is useful if you are building:
 
 ## Quick Links
 
-🔗 Source code: [GitHub](https://github.com/GaneshJadhavOnGitHub/fido_mds3_attestation_ca)  
-📦 Rust crate: [crates.io](https://crates.io/crates/fido_mds3_attestation_ca)  
+🔗 Source code: [GitHub](https://github.com/GaneshJadhavOnGitHub/fido_mds3_attestation_ca)
+📦 Rust crate: [crates.io](https://crates.io/crates/fido_mds3_attestation_ca)
 📚 Documentation: [Docs.rs](https://docs.rs/fido_mds3_attestation_ca/latest)
 
 

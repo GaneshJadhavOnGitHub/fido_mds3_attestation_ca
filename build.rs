@@ -1,4 +1,4 @@
-//! Build module for fido_mds3_attestation_ca
+//! Build module for `fido_mds3_attestation_ca`
 
 use std::fs::{self, File};
 use std::io::{Read, Write};
@@ -178,9 +178,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 /// Universal user data path for downloading CA list
 ///
 /// Platform-specific:
-/// - Linux: ~/.local/share/fido_mds3_attestation_ca/ca_list.jwt
-/// - macOS: ~/Library/Application Support/fido_mds3_attestation_ca/ca_list.jwt
-/// - Windows: %LOCALAPPDATA%\fido_mds3_attestation_ca\ca_list.jwt
+/// - Linux: ~/.`local/share/fido_mds3_attestation_ca/ca_list.jwt`
+/// - macOS: ~/`Library/Application Support/fido_mds3_attestation_ca/ca_list.jwt`
+/// - Windows: %`LOCALAPPDATA%\fido_mds3_attestation_ca\ca_list.jwt`
 ///
 /// This function resolves a **cross-platform user data directory** where the
 /// FIDO Metadata Service (MDS3) blob will be cached locally.

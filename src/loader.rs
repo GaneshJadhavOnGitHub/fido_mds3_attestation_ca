@@ -102,6 +102,10 @@ pub fn load_blob_and_call_parser<P: AsRef<Path>>(
 ///
 /// * `jwt_path` — Filesystem path to the MDS3 JWT metadata blob.
 ///
+/// # Errors
+///
+/// This function may return the errors:
+///
 /// # Returns
 ///
 /// * `Ok(Arc<ParsedBlob>)` – A shared reference to the parsed metadata blob.
@@ -153,6 +157,10 @@ pub fn get_or_init_blob_cache<P: AsRef<Path>>(
 /// 3. **Embedded Fallback**  
 ///    If downloading fails or the downloaded file is invalid, the
 ///    embedded CA list compiled into the crate is used.
+///
+/// # Errors
+///
+/// This function may return the errors:
 ///
 /// # Returns
 ///

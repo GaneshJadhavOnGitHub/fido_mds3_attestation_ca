@@ -22,3 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.1-alpha] - 2025-03-17
 
 - Fixed rust doc generation issue
+
+
+## [0.1.1-alpha.1] - 2025-03-18
+
+- Added missing rust doc comments
+- Fixed few cargo clippy warnings occurred when "Doc" Lints enabled
+- Added more keywords in Cargo.toml
+- Added new description in Cargo.toml
+- Removed trailing blank spaces from URL's in README.md 

@@ -7,7 +7,7 @@
 //! The FIDO Metadata Service publishes a signed JWT containing
 //! metadata entries for authenticators. Each entry may contain
 //! one or more **attestation root certificates** which are used
-//! during WebAuthn attestation verification.
+//! during `WebAuthn` attestation verification.
 //!
 //! This module performs the following tasks:
 //!
@@ -25,7 +25,7 @@
 //! # Output
 //!
 //! The extracted CA entries can later be converted into an
-//! `AttestationCaList` for use in WebAuthn attestation validation.
+//! `AttestationCaList` for use in `WebAuthn` attestation validation.
 //!
 //! # Error Handling
 //!
@@ -320,7 +320,7 @@ pub fn extract_ca_entries(entry: &Value) -> Vec<CaEntry> {
         raw_data: Some(raw_data),
     }]
 }
-/// Helper to convert x509_parser ASN1Time to ISO 8601 String
+/// Helper to convert `x509_parser` `ASN1Time` to ISO 8601 String
 ///
 /// Converts an ASN.1 time value extracted from an X.509 certificate
 /// into a standardized **RFC3339 / ISO-8601 timestamp string**.
@@ -366,6 +366,9 @@ fn format_x509_time(t: x509_parser::time::ASN1Time) -> String {
 /// # Arguments
 ///
 /// * `input` – Encoded JWT component.
+/// # Errors
+///
+/// This function may return the errors:
 ///
 /// # Returns
 ///
@@ -392,6 +395,9 @@ pub fn base64_decode_jwt_part(input: &str) -> Result<Vec<u8>, base64::DecodeErro
 /// # Arguments
 ///
 /// * `input` – Base64 encoded certificate string.
+/// # Errors
+///
+/// This function may return the errors:
 ///
 /// # Returns
 ///

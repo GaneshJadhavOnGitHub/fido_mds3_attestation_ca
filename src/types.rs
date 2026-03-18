@@ -5,7 +5,7 @@
 //!
 //! The types here act as an intermediate representation between the
 //! raw metadata blob and the final `AttestationCaList` structure used
-//! by WebAuthn verification workflows.
+//! by `WebAuthn` verification workflows.
 //!
 //! # Overview
 //!
@@ -34,7 +34,7 @@
 //! those metadata entries.
 //!
 //! The extracted CA information can then be used to construct an
-//! attestation trust anchor list for WebAuthn attestation verification.
+//! attestation trust anchor list for `WebAuthn` attestation verification.
 //!
 //! # Serialization
 //!
@@ -81,8 +81,13 @@ use serde::{Deserialize, Serialize};
 /// be cached or exported for debugging.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ParsedBlob {
+    ///Timestamp indicating when this parsed structure was created.
     pub generated_at: DateTime<Utc>,
+
+    ///Total number of CA entries extracted from the blob.
     pub total_entries: usize,
+
+    ///Collection of parsed attestation certificate authority entries.
     pub cas: Vec<CaEntry>,
 }
 
@@ -101,7 +106,9 @@ impl Default for ParsedBlob {
         Self {
             // Use the current time as a placeholder for the "empty" state
             generated_at: Utc::now(),
+
             total_entries: 0,
+
             cas: Vec::new(),
         }
     }
@@ -116,7 +123,7 @@ impl Default for ParsedBlob {
 /// the certificate and metadata required for attestation verification.
 ///
 /// These entries are later transformed into trust anchors used by
-/// WebAuthn attestation validation.
+/// `WebAuthn` attestation validation.
 ///
 /// # Fields
 ///
@@ -156,10 +163,21 @@ pub struct CaEntry {
     pub fingerprint: String,
 
     /// Validity period
+    /// Certificate validity start time (Not Before).
+    ///
+    /// Represents the timestamp from which the attestation root certificate
+    /// is considered valid. Typically derived from the X.509 certificate
+    /// `notBefore` field and encoded as a string (e.g., ISO 8601 format).
     pub not_before: String,
+
+    /// Certificate validity end time (Not After).
+    ///
+    /// Represents the timestamp after which the attestation root certificate
+    /// is no longer valid. Typically derived from the X.509 certificate
+    /// `notAfter` field and encoded as a string (e.g., ISO 8601 format).
     pub not_after: String,
 
-    /// Supported attestation types (basic_full, basic_surrogate, etc.)
+    /// Supported attestation types (`basic_full`, `basic_surrogate`, etc.)
     pub attestation_types: Vec<String>,
 
     /// Protocol family (fido2, u2f, etc.)
@@ -172,7 +190,7 @@ pub struct CaEntry {
     pub raw_data: Option<Arc<serde_json::Value>>,
 }
 
-/// Filters applied to AttestationCaList
+/// Filters applied to `AttestationCaList`
 ///
 /// This enum controls which attestation certificate authorities
 /// should be included when constructing an `AttestationCaList`.

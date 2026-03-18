@@ -1,4 +1,4 @@
-//! CLI binary: fido_mds3_attestation_ca
+//! CLI binary: `fido_mds3_attestation_ca`
 //!
 //! Command-line interface for interacting with the
 //! `fido-mds3-attestation-ca` crate.
@@ -32,10 +32,10 @@
 //! # References
 //!
 //! FIDO Metadata Service specification:  
-//! https://fidoalliance.org/metadata/  
+//! <https://fidoalliance.org/metadata/>  
 //!
 //! Rust logging via `env_logger`:  
-//! https://docs.rs/env_logger/latest/env_logger/
+//! <https://docs.rs/env_logger/latest/env_logger/>
 
 #![warn(unused_extern_crates)]
 use fido_mds3_attestation_ca::logging;
