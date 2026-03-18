@@ -36,3 +36,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Minor corrections in README.md
 
+## [0.1.1-alpha.3] - 2026-03-19
+
+### Added
+- **New Feature Flag:** Added `embedded` feature to `Cargo.toml`. This allows users to opt-in to the large embedded FIDO MDS3 snapshot.
+- **Strategic Fallback:** Implemented a "Lean by Default" strategy. The crate now defaults to a minimal footprint and only includes the embedded data if explicitly requested.
+- **Enhanced Documentation:** Added `Feature Gating` sections to `rustdoc` for `load_jwt()` and `embedded_ca_list()` to explain behavior when the `embedded` feature is disabled.
+- **Debug Logging:** Added specific log statements to identify if the crate is running in "Lean" mode or using the "Embedded" fallback.
+
+### Changed
+- **Binary Size Optimization:** Reduced the default `.rlib` size from **~22 MB** to **~830 KB** (a 96% reduction) by feature-gating the embedded JWT constant.
+- **Lazy Initialization:** Updated `EMBEDDED_PARSED` to return an empty `ParsedBlob` when the `embedded` feature is disabled, preventing unnecessary memory allocation and parsing overhead.
+- **Test Suite Updates:** Refactored `lib_tests.rs` to be feature-aware, ensuring tests pass correctly in both "Standard" and "Embedded" build modes.
+
+### Fixed
+- **Compiler Warnings:** Resolved `unused_import` warnings for `EMBEDDED_JWT` and related test dependencies when building without the `embedded` feature.
+

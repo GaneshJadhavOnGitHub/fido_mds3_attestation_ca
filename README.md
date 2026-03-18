@@ -32,7 +32,7 @@ Service (MDS)**.
 
 Managing these certificates manually is difficult because:
 
-* The metadata contains **thousands of authenticator entries**
+* The metadata contains **hundreds of authenticator entries**
 * Certificates are stored as **base64 encoded values**
 * Authenticators may use **AAGUID (FIDO2)** or **AAID (U2F) identifiers**
 * Not all entries contain valid attestation roots
@@ -57,24 +57,42 @@ to verify authenticator attestation statements.
 * Supports both **AAGUID (FIDO2)** and **AAID (U2F)**
 * Handles **invalid or malformed certificates safely**
 * **Logging support** for production environments
+* **Lean by default:** Optional embedded fallback to keep backend binaries small
 * **Easy to use** with minimal configuration
 
 
 ---
 
 
+---
+
 ## How it works - Metadata Strategy (Download → Build → Fallback)
 
 The crate uses a **three-step strategy** for loading metadata:
 
-1. **Download (Recommended)** - 
+1. **Download (Recommended)** – 
    Use the provided CLI tool to download the latest **MDS3 BLOB**.
 
-2. **Build -**
-   The library parses the BLOB and builds a list of **attestation trust anchors** and caches this list for subsequent calls.
+2. **Build** – 
+   The library parses the BLOB, builds a list of **attestation trust anchors**, and caches this list for subsequent calls.
 
-3. **Fallback -**
-   If a local BLOB is not available, the crate falls back to an **embedded metadata snapshot** so applications can still run.
+3. **Fallback** – 
+   If a local BLOB is unavailable, the crate checks for an **embedded metadata snapshot**. **Note:** This fallback is only active if the `embedded` feature is enabled during compilation.
+
+### 📦 Choosing your Build Strategy
+
+To support high-performance backend environments, this crate is **Lean by Default**.
+
+* **Standard Mode (Default):** Optimized for cloud backends, Docker containers, and serverless environments. It excludes the large embedded fallback to keep your binary size minimal. In this mode, the "Fallback" step returns an empty list.
+
+* **Embedded Mode (Optional):** If your application runs in an air-gapped or offline environment where downloading metadata is restricted, you can choose to bake the metadata snapshot directly into your binary to serve as a permanent fallback.
+
+To enable the permanent offline fallback, add the `embedded` feature in your `Cargo.toml`:
+
+```toml
+[dependencies]
+fido_mds3_attestation_ca = { version = "0.1.1-alpha.3", features = ["embedded"] }
+```
 
 This approach provides:
 
@@ -90,7 +108,9 @@ To use this crate in production:
 
 1. **Download the latest metadata BLOB** using the CLI tool.
 2. **Restart your application** to load the newly downloaded BLOB.
-3. *(Optional)* **Recompile with `cargo build --release`** to embed the new blob permanently in the crate.
+3. *(Optional)* **Recompile with `cargo build --release --features embedded`** to embed the new blob permanently in the crate.
+
+> **Note:** The "Fallback" step and compile-time embedding  work only if the **`embedded` feature is enabled** in your `Cargo.toml` or via the command line. In **Standard Mode (Default)**, the crate remains lightweight and will not include the fallback snapshot.
 
 
 💡 **Pro tip:**  Call `build_ca_list()` once at startup, before your server begins listening. 
@@ -157,8 +177,17 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = "0.1.1-alpha.2"
+fido_mds3_attestation_ca = "0.1.1-alpha.3"
 ```
+
+---
+
+## Crate Features
+
+| Feature | Default | Description |
+| :--- | :---: | :--- |
+| `cli` | **Yes** | Enables the command-line tool for downloading the MDS3 BLOB. |
+| `embedded` | No | Bakes the large FIDO metadata snapshot into the crate as a fallback. |
 
 ---
 

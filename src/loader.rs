@@ -158,6 +158,12 @@ pub fn get_or_init_blob_cache<P: AsRef<Path>>(
 ///    If downloading fails or the downloaded file is invalid, the
 ///    embedded CA list compiled into the crate is used.
 ///
+/// # Feature Gating
+///
+/// **Note:** The **Embedded Fallback** returns an **empty list** by default to minimize binary size.
+/// To include the actual FIDO metadata snapshot as a recovery mechanism, enable the `embedded`
+/// feature in Cargo.toml.
+///
 /// # Errors
 ///
 /// This function may return the errors:

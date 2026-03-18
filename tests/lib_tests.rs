@@ -2,90 +2,103 @@
 
 use base64::{Engine, engine::general_purpose};
 use chrono::Utc;
-use fido_mds3_attestation_ca::parser::base64_decode_jwt_part;
 use fido_mds3_attestation_ca::types::{CaEntry, ParsedBlob};
 use fido_mds3_attestation_ca::{embedded_ca_list, loader, universal_user_path};
-use serde_json::{Value, json};
+use serde_json::json;
 use uuid::Uuid;
 mod common;
+
+// These are only used in test_embedded_data_exists (gated by 'embedded')
+#[cfg(feature = "embedded")]
+use fido_mds3_attestation_ca::parser::base64_decode_jwt_part;
+#[cfg(feature = "embedded")]
+use serde_json::Value;
+
 #[test]
+fn test_fallback_behavior() {
+    let list = embedded_ca_list();
+
+    #[cfg(feature = "embedded")]
+    {
+        // If feature is ON, the list should NOT be empty
+        assert!(
+            !list.cas.is_empty(),
+            "Embedded list should contain data when 'embedded' feature is enabled"
+        );
+    }
+
+    #[cfg(not(feature = "embedded"))]
+    {
+        // If feature is OFF, the list should be empty
+        assert!(
+            list.cas.is_empty(),
+            "Embedded list should be empty when 'embedded' feature is disabled"
+        );
+    }
+}
+// This test checks the actual physical file in the data folder.
+// It should only run if the user intends to test the embedded data.
+#[test]
+#[cfg(feature = "embedded")]
 fn test_embedded_data_exists() {
     common::init_logger();
-    // 1. Include the raw JWT string from your data folder
     let jwt_str = include_str!("../data/ca_list.jwt");
 
     if jwt_str.is_empty() {
-        log::error!("Embedded JWT should not be empty");
-        return;
+        panic!("Embedded JWT should not be empty when feature is enabled");
     }
 
-    // 2. Extract the payload (the middle part of the JWT)
     let parts: Vec<&str> = jwt_str.split('.').collect();
+    assert_eq!(parts.len(), 3, "Embedded data is not a valid 3-part JWT");
 
-    if parts.len() != 3 {
-        log::error!(
-            "Embedded data is not a valid 3-part JWT. Parts found: {}",
-            parts.len()
-        );
-        return;
-    }
+    let payload_bytes = base64_decode_jwt_part(parts[1]).expect("Failed to decode JWT payload");
+    let json_value: Value =
+        serde_json::from_slice(&payload_bytes).expect("Should parse JSON payload");
 
-    // 3. Decode the Base64URL payload using your NEW helper
-    let payload_bytes = match base64_decode_jwt_part(parts[1]) {
-        Ok(bytes) => bytes,
-        Err(e) => {
-            log::error!("Failed to decode JWT payload part: {e:?}");
-            return;
-        }
-    };
-
-    // 4. Parse the decoded JSON bytes into your ParsedBlob struct
-    // Using from_slice here because payload_bytes is a Vec<u8>
-    let result: Result<Value, _> = serde_json::from_slice(&payload_bytes);
-
-    if result.is_err() {
-        log::error!(
-            "Should parse decoded JSON payload but failed: {:?}",
-            result.as_ref().err()
-        );
-        return;
-    }
-
-    let json_value = match result {
-        Ok(v) => v,
-        Err(_) => return,
-    };
-
-    // Verify the "entries" field exists in the JSON
-    if json_value.get("entries").is_none() {
-        log::error!("MDS3 blob missing 'entries' field");
-        return;
-    }
-
-    assert!(json_value.get("entries").is_some());
+    assert!(
+        json_value.get("entries").is_some(),
+        "MDS3 blob missing 'entries' field"
+    );
 }
+
 #[test]
+#[cfg(feature = "embedded")]
 fn test_embedded_ca_list_loads() {
     let list = embedded_ca_list();
-    // If we get here, parsing succeeded
+    // Only check count consistency if the list is expected to be populated
     assert!(list.total_entries == list.cas.len(), "Count mismatch");
 }
 
 #[test]
+#[cfg(feature = "embedded")]
 fn test_loader_embedded_source() {
     common::init_logger();
     let result = loader::load_jwt();
     assert!(result.is_ok(), "Should load embedded CA list");
 
-    let list = match result {
-        Ok(v) => v,
-        Err(e) => {
-            log::error!("Unexpected error while loading embedded CA list: {e:?}");
-            return;
-        }
-    };
+    let list = result.unwrap();
+    assert!(
+        !list.cas.is_empty(),
+        "Embedded list should have entries when feature is enabled"
+    );
+}
 
-    assert!(!list.cas.is_empty(), "Embedded list should have entries");
+#[test]
+#[cfg(feature = "embedded")]
+fn test_ca_list_metadata() {
+    let list = embedded_ca_list();
+
+    assert_eq!(
+        list.cas.len(),
+        list.total_entries,
+        "total_entries should match actual count"
+    );
+
+    for ca in &list.cas {
+        assert!(!ca.device_name.is_empty());
+        assert!(!ca.certificate_pem.is_empty());
+        assert!(!ca.fingerprint.is_empty());
+    }
 }
 
 #[test]
@@ -162,33 +175,6 @@ fn test_loader_file_source_valid() {
     };
 
     assert_eq!(list.cas[0].device_name, "Test Device");
-}
-#[test]
-fn test_ca_list_metadata() {
-    let list = embedded_ca_list();
-
-    // Check metadata consistency
-    assert_eq!(
-        list.cas.len(),
-        list.total_entries,
-        "total_entries should match actual count"
-    );
-
-    // Check all entries have required fields
-    for ca in &list.cas {
-        assert!(
-            !ca.device_name.is_empty(),
-            "Device name should not be empty"
-        );
-        assert!(
-            !ca.certificate_pem.is_empty(),
-            "Certificate should not be empty"
-        );
-        assert!(
-            !ca.fingerprint.is_empty(),
-            "Fingerprint should not be empty"
-        );
-    }
 }
 
 #[test]

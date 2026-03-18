@@ -31,6 +31,8 @@ use error::FidoMds3AttestationCaError;
 use types::{AttestationFilter, ParsedBlob};
 
 use constants::BLOB_FILE_NAME;
+
+#[cfg(feature = "embedded")]
 use constants::EMBEDDED_JWT;
 
 pub mod constants;
@@ -179,6 +181,12 @@ pub fn universal_user_path() -> Result<PathBuf, FidoMds3AttestationCaError> {
 /// - The local cache is corrupted
 /// - Network access to the FIDO Metadata Service fails
 ///
+/// # Feature Gating
+///
+/// * **Enabled (`features = ["embedded"]`):** The full metadata blob is parsed and returned.
+/// * **Disabled (Default):** To keep the binary lean, the blob is excluded. The fallback
+///   returns an empty [`ParsedBlob`].
+///
 /// # Logging
 ///
 /// * `debug` – Initialization and cache usage
@@ -195,24 +203,33 @@ pub fn universal_user_path() -> Result<PathBuf, FidoMds3AttestationCaError> {
 /// - `once_cell::Lazy`: <https://docs.rs/once_cell/latest/once_cell/>
 /// - `Arc` shared ownership: <https://doc.rust-lang.org/std/sync/struct.Arc.html>
 static EMBEDDED_PARSED: Lazy<Arc<ParsedBlob>> = Lazy::new(|| {
-    log::debug!("Embedded: Initializing embedded CA list (first access)");
+    #[cfg(feature = "embedded")]
+    {
+        log::debug!("Embedded: Initializing embedded CA list (first access)");
 
-    match parser::parse_blob(EMBEDDED_JWT) {
-        Ok(parsed) => {
-            log::info!("Embedded CA list parsed successfully.");
-            Arc::new(parsed)
-        }
-        Err(e) => {
-            // CRITICAL: The embedded JWT is invalid.
-            // We log this as an error so the dev sees it in production.
-            log::error!(
-                "CRITICAL: Failed to parse embedded CA list: {e}. Crate will operate with empty CA list.",
-            );
+        match parser::parse_blob(EMBEDDED_JWT) {
+            Ok(parsed) => {
+                log::info!("Embedded CA list parsed successfully.");
+                Arc::new(parsed)
+            }
+            Err(e) => {
+                // CRITICAL: The embedded JWT is invalid.
+                // We log this as an error so the dev sees it in production.
+                log::error!(
+                    "CRITICAL: Failed to parse embedded CA list: {e}. Crate will operate with empty CA list.",
+                );
 
-            // Return an empty/default ParsedBlob instead of crashing.
-            // This assumes ParsedBlob implements Default or has a 'new_empty' method.
-            Arc::new(ParsedBlob::default())
+                // Return an empty/default ParsedBlob instead of crashing.
+                // This assumes ParsedBlob implements Default or has a 'new_empty' method.
+                Arc::new(ParsedBlob::default())
+            }
         }
+    }
+
+    #[cfg(not(feature = "embedded"))]
+    {
+        log::debug!("Embedded feature disabled; returning empty default ParsedBlob.");
+        Arc::new(ParsedBlob::default())
     }
 });
 
@@ -234,6 +251,11 @@ static EMBEDDED_PARSED: Lazy<Arc<ParsedBlob>> = Lazy::new(|| {
 /// * The embedded blob is parsed **only once** during program execution.
 /// * Subsequent calls return a cloned [`Arc`] pointing to the same
 ///   cached structure.
+///
+/// # Feature Gating
+///
+/// **Note:** This function returns an **empty list** by default to minimize binary size.
+/// To include the actual FIDO metadata snapshot, enable the `embedded` feature in Cargo.toml
 ///
 /// # Example
 ///
