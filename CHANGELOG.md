@@ -31,3 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added more keywords in Cargo.toml
 - Added new description in Cargo.toml
 - Removed trailing blank spaces from URL's in README.md 
+
+## [0.1.1-alpha.2] - 2025-03-18
+
+- Minor corrections in README.md
+

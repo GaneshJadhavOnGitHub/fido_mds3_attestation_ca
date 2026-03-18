@@ -157,7 +157,7 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = "0.1.1-alpha.1"
+fido_mds3_attestation_ca = "0.1.1-alpha.2"
 ```
 
 ---
@@ -172,7 +172,7 @@ fn main() {
     let ca_list = build_ca_list(AttestationFilter::TrustAnchors)
         .expect("Failed to build CA list");
 
-    println!("Total trust anchors: {}", ca_list.len());
+    println!("Total number of trust anchors: {}", ca_list.len());
 }
 ```
 
@@ -193,7 +193,7 @@ fn main() {
         AttestationFilter::FidoCertifiedTrustAnchorsOnly
     ).expect("Failed to build CA list");
 
-    println!("FIDO certified anchors: {}", ca_list.len());
+    println!("Total number of FIDO certified anchors: {}", ca_list.len());
 }
 ```
 
@@ -226,7 +226,7 @@ webauthn.start_attested_passkey_registration(
     username,
     display_name,
     Some(exclude_credentials),
-    attestation_ca_list,                   // **Can be used here directly**
+    attestation_ca_list,                // **Can be used here directly**
     Some(ui_hint_authenticator_attachment),   
 );
 ```
@@ -258,7 +258,9 @@ This crate is useful if you are building:
 ## Quick Links
 
 🔗 Source code: [GitHub](https://github.com/GaneshJadhavOnGitHub/fido_mds3_attestation_ca)
+
 📦 Rust crate: [crates.io](https://crates.io/crates/fido_mds3_attestation_ca)
+
 📚 Documentation: [Docs.rs](https://docs.rs/fido_mds3_attestation_ca/latest)
 
 
