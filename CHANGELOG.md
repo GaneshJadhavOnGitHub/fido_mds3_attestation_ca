@@ -52,3 +52,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - **Compiler Warnings:** Resolved `unused_import` warnings for `EMBEDDED_JWT` and related test dependencies when building without the `embedded` feature.
 
+
+## [0.1.1-alpha.4] - 2026-03-20
+
+- Improved rustdoc comments for library and loader functions.
+- Improved compile time log messages for build.rs and cli tool.
+- Improved README.md

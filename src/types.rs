@@ -138,8 +138,7 @@ impl Default for ParsedBlob {
 ///   `basic_full`, `basic_surrogate`, etc.
 /// - `protocol_family` – Protocol family supported by the authenticator
 ///   (e.g., `fido2`, `u2f`).
-/// - `raw_data` – Optional raw metadata entry preserved for debugging
-///   or inspection.
+/// - `raw_data` – raw metadata entry preserved for AAID (U2F).
 ///
 /// # Notes
 ///
@@ -183,10 +182,7 @@ pub struct CaEntry {
     /// Protocol family (fido2, u2f, etc.)
     pub protocol_family: String,
 
-    /// Raw data preserved for debugging or inspection.
-    //pub raw_data: Option<serde_json::Value>,
-
-    /// Raw data preserved for debugging or inspection.
+    /// raw metadata entry preserved for AAID (U2F).
     pub raw_data: Option<Arc<serde_json::Value>>,
 }
 

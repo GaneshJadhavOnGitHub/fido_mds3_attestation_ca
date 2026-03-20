@@ -443,9 +443,18 @@ fn download_blob(target: &PathBuf) -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
             log::info!("✓ Updated embedded JWT: {EMBEDDED_JWT_PATH}");
-            log::info!(
-                "  → (Optional) To embed this update permanently into crate, recompile with: cargo build --release"
-            );
+
+            let is_embedded_enabled = std::env::var("CARGO_FEATURE_EMBEDDED").is_ok();
+
+            if is_embedded_enabled {
+                log::info!("✅ Embedded feature is ACTIVE.");
+                log::info!("⚠ NOTE: This will increase the final binary size.");
+            } else {
+                log::info!("ℹ️ Embedded feature is CURRENTLY DISABLED (Standard Mode).");
+                log::info!(" → (Optional) To enable permanent offline fallback, recompile with:");
+                log::info!("  cargo build --release --features embedded");
+                log::info!("⚠ NOTE: Enabling this feature will increase the final binary size.");
+            }
             log::info!("    The newly downloaded blob will be loaded on next restart");
         }
         Err(e) => {

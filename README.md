@@ -55,10 +55,12 @@ to verify authenticator attestation statements.
 * Extract **attestation trust anchors** from FIDO MDS3 metadata
 * Filter **FIDO certified authenticators**
 * Supports both **AAGUID (FIDO2)** and **AAID (U2F)**
+
 * Handles **invalid or malformed certificates safely**
 * **Logging support** for production environments
 * **Lean by default:** Optional embedded fallback to keep backend binaries small
 * **Easy to use** with minimal configuration
+* **Built-in CLI Tool** : Includes a command-line utility to easily download and update the latest **FIDO MDS3 metadata BLOB** locally
 
 
 ---
@@ -77,28 +79,31 @@ The crate uses a **three-step strategy** for loading metadata:
    The library parses the BLOB, builds a list of **attestation trust anchors**, and caches this list for subsequent calls.
 
 3. **Fallback** – 
-   If a local BLOB is unavailable, the crate checks for an **embedded metadata snapshot**. **Note:** This fallback is only active if the `embedded` feature is enabled during compilation.
+   If a local BLOB is unavailable, the crate checks for an **embedded metadata snapshot**. 
+   **Note:** This fallback is only active if the `embedded` feature is enabled during compilation.
 
 ### 📦 Choosing your Build Strategy
 
 To support high-performance backend environments, this crate is **Lean by Default**.
 
-* **Standard Mode (Default):** Optimized for cloud backends, Docker containers, and serverless environments. It excludes the large embedded fallback to keep your binary size minimal. In this mode, the "Fallback" step returns an empty list.
+* **Standard Mode (Default):** Optimized for cloud backends, Docker containers, and serverless environments. It excludes the large embedded fallback to keep your binary size minimal.
 
-* **Embedded Mode (Optional):** If your application runs in an air-gapped or offline environment where downloading metadata is restricted, you can choose to bake the metadata snapshot directly into your binary to serve as a permanent fallback.
+Add the crate to your `Cargo.toml`:
+
+```toml
+[dependencies]
+fido_mds3_attestation_ca = "0.1.1-alpha.4"
+```
+
+* **Embedded Mode (Optional):** If your application runs in an air-gapped or offline environment where downloading metadata is restricted, you can choose to bake the metadata snapshot directly into your binary to serve as a permanent fallback. But this will increase the size of your binary.
 
 To enable the permanent offline fallback, add the `embedded` feature in your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = { version = "0.1.1-alpha.3", features = ["embedded"] }
+fido_mds3_attestation_ca = { version = "0.1.1-alpha.4", features = ["embedded"] }
 ```
 
-This approach provides:
-
-* **Reliable startup**
-* **Better performance**
-* **Safe fallback when metadata is unavailable**
 
 ---
 
@@ -110,7 +115,7 @@ To use this crate in production:
 2. **Restart your application** to load the newly downloaded BLOB.
 3. *(Optional)* **Recompile with `cargo build --release --features embedded`** to embed the new blob permanently in the crate.
 
-> **Note:** The "Fallback" step and compile-time embedding  work only if the **`embedded` feature is enabled** in your `Cargo.toml` or via the command line. In **Standard Mode (Default)**, the crate remains lightweight and will not include the fallback snapshot.
+> **Note:** The "Fallback" step and compile-time embedding  work only if the **`embedded` feature is enabled** in your `Cargo.toml` or via the command line. In **Standard Mode (Default)**, the crate remains lightweight and will not include the fallback snapshot, as it increases the size of the binary.
 
 
 💡 **Pro tip:**  Call `build_ca_list()` once at startup, before your server begins listening. 
@@ -121,6 +126,12 @@ Example workflow:
 ```
 download metadata → restart application → build CA list (at startup)
 ```
+
+This approach provides:
+
+* **Reliable startup**
+* **Better performance**
+* **Safe fallback when metadata is unavailable**
 
 ---
 
@@ -157,15 +168,30 @@ RUST_LOG=info fido_mds3_attestation_ca download
 
 ---
 
-## Metadata Refresh Recommendation by FIDO
 
-According to FIDO guidance, metadata BLOB **does not change frequently**.
+## FIDO Metadata Compliance
 
-**Recommended approach:**
+This crate is designed to follow the FIDO Alliance Metadata Service (MDS) guidelines for performance.
 
-- **Download fresh metadata once per month** to pick up newly certified authenticators.
-- **Cache the metadata locally** for best performance.
+### 1. Automatic Local Caching
 
+To minimize network latency and external dependencies, this crate automatically caches the metadata BLOB on your local system, as recommended by FIDO.
+
+### 2. Staying Up-to-Date (Monthly Refresh)
+
+FIDO recommends refreshing the metadata once per month to include newly certified authenticators. To follow this recommendation using our tool:
+
+#### Step 1: Download
+
+Run the CLI binary to fetch the latest BLOB from FIDO:
+
+```bash
+fido_mds3_attestation_ca download
+```
+    
+#### Step 2: Reload
+    
+Restart your application. The crate will automatically detect the fresh BLOB in your local cache and load it during initialization.
 
 Reference: https://fidoalliance.org/metadata/
 
@@ -173,11 +199,21 @@ Reference: https://fidoalliance.org/metadata/
 
 ## Usage (Library)
 
+### Standard Mode (Default)
+
 Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = "0.1.1-alpha.3"
+fido_mds3_attestation_ca = "0.1.1-alpha.4"
+```
+### Embedded Mode (Optional)
+
+Add the crate to your `Cargo.toml` with `features = ["embedded"]`
+
+```toml
+[dependencies]
+fido_mds3_attestation_ca = { version = "0.1.1-alpha.4", features = ["embedded"] }
 ```
 
 ---
@@ -186,7 +222,7 @@ fido_mds3_attestation_ca = "0.1.1-alpha.3"
 
 | Feature | Default | Description |
 | :--- | :---: | :--- |
-| `cli` | **Yes** | Enables the command-line tool for downloading the MDS3 BLOB. |
+| `cli` | **Yes** | The command-line tool for downloading the MDS3 BLOB. |
 | `embedded` | No | Bakes the large FIDO metadata snapshot into the crate as a fallback. |
 
 ---

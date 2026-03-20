@@ -156,7 +156,7 @@ pub fn get_or_init_blob_cache<P: AsRef<Path>>(
 ///
 /// 3. **Embedded Fallback**  
 ///    If downloading fails or the downloaded file is invalid, the
-///    embedded CA list compiled into the crate is used.
+///    embedded CA list compiled into the crate is used. (Works in embedded mode).
 ///
 /// # Feature Gating
 ///

@@ -608,11 +608,20 @@ impl ParsedBlob {
 /// metadata blob and extracts attestation certificate authorities (CAs)
 /// according to the requested filter.
 ///
-/// The metadata blob is loaded using [`loader::load_jwt`], which may:
+/// The metadata blob is loaded using [`loader::load_jwt`], which follows a
+/// prioritized loading strategy:
 ///
-/// - Use a cached local metadata file
-/// - Download the latest blob from the FIDO Metadata Service
-/// - Fall back to an embedded metadata list if necessary
+/// 1. **Cache:** Uses a locally cached metadata file if available.
+/// 2. **Download:** Attempts to download the latest blob from the FIDO Metadata Service.
+/// 3. **Fallback:** Uses an embedded metadata snapshot if both cache and download fail. (Works in embedded mode).
+///
+/// # Feature Gating
+///
+/// **Note:** The **Embedded Fallback** mechanism is only active if the `embedded`
+/// feature is enabled in your `Cargo.toml`. If the feature is disabled (default),
+/// the fallback will return an empty list to keep the crate's binary footprint minimal.
+///
+/// # Performance
 ///
 /// To improve performance, the resulting CA lists are **cached in memory**.
 /// Once a list is generated for a specific filter, subsequent calls will
