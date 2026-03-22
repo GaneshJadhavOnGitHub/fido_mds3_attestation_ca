@@ -119,7 +119,7 @@ pub fn load_blob_and_call_parser<P: AsRef<Path>>(
 ///
 /// # Logging
 ///
-/// * Logs successful initialization of the cache at `info` level.
+/// * Logs successful initialization of the cache at `debug` level.
 ///
 /// # Example
 ///
@@ -133,7 +133,7 @@ pub fn get_or_init_blob_cache<P: AsRef<Path>>(
     USER_PARSED
         .get_or_try_init(|| {
             let parsed = load_blob_and_call_parser(jwt_path)?;
-            log::info!("User CA list parsed and cached successfully.");
+            log::debug!("User CA list parsed and cached successfully.");
             Ok(Arc::new(parsed))
         })
         .cloned()

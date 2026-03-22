@@ -318,35 +318,41 @@ mod download {
                         log::warn!("⚠ Failed to sync file to disk: {e}");
                     }
                 }
-                log::info!("✓ Updated embedded JWT: {EMBEDDED_JWT_PATH}");
+                log::debug!("✓ Updated embedded JWT: {EMBEDDED_JWT_PATH}");
                 let is_embedded_enabled = cfg!(feature = "embedded");
 
                 if is_embedded_enabled {
-                    log::info!("✅ Embedded feature is ACTIVE.");
-                    log::info!(
+                    log::debug!("✅ Embedded feature is ACTIVE.");
+                    log::debug!(
                         " → (Optional) To bake this update into the crate permanently, run:"
                     );
-                    log::info!("    cargo build --release");
-                    log::info!("⚠ NOTE: This will increase the final binary size.");
+                    log::debug!("    cargo build --release");
+                    log::debug!("⚠ NOTE: This will increase the final binary size.");
                 } else {
-                    log::info!("ℹ️ Embedded feature is CURRENTLY DISABLED (Standard Mode).");
-                    log::info!(
+                    log::debug!("ℹ️ Embedded feature is CURRENTLY DISABLED (Standard Mode).");
+                    log::debug!(
                         " → (Optional) To enable permanent offline fallback, recompile with:"
                     );
-                    log::info!("   cargo build --release --features embedded");
-                    log::info!(
+                    log::debug!("   cargo build --release --features embedded");
+                    log::debug!(
                         "⚠ NOTE: Enabling this feature will increase the final binary size."
                     );
                 }
-                log::info!("    The newly downloaded blob will be loaded on next restart");
+                log::debug!("    The newly downloaded blob will be loaded on next restart");
             }
             Err(e) => {
                 log::error!("❌ Failed to copy JWT to embedded path: {e}");
                 // Continue - download succeeded, just embedding update failed
             }
         }
-        log::info!("✓ FIDO MDS3 blob saved to: {}", jwt_path.display());
-        println!("✓ FIDO MDS3 blob saved to: {}", jwt_path.display());
+        log::debug!(
+            "✓ FIDO MDS3 blob saved to: {} And will be loaded on next restart.",
+            jwt_path.display()
+        );
+        println!(
+            "✓ FIDO MDS3 blob saved to: {} And will be loaded on next restart.",
+            jwt_path.display()
+        );
 
         Ok(())
     }

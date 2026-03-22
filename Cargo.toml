@@ -1,7 +1,8 @@
 [package]
 name = "fido_mds3_attestation_ca"
-version = "0.1.1-alpha.4"
-edition = "2024"                    # ← Rust 2024 edition (1.85+)
+version = "0.1.1-rc.1"
+edition = "2024"                    # ← Rust 2024 edition
+rust-version = "1.88"
 authors = ["Ganesh Kamlakar Jadhav <ganesh.jadhav16986@gmail.com>"]
 description = "Library for extracting FIDO Metadata Service (MDS3) attestation trust anchors for WebAuthn authenticator verification, compatible with webauthn-rs."
 repository = "https://github.com/GaneshJadhavOnGitHub/fido_mds3_attestation_ca"
@@ -43,7 +44,7 @@ once_cell = "1.19"
 dirs = "5.0"
 hex = "0.4"         
 sha2 = "0.10"
-webauthn-rs = "0.5.4"
+webauthn-rs = "0.6.0-dev"
 uuid = { version = "1.21.0", features = ["v5"] }
 log = "0.4.29"
 env_logger = "0.11.9"

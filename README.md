@@ -1,6 +1,7 @@
 # fido_mds3_attestation_ca
 
-![Rust 1.85+](https://img.shields.io/badge/rust-1.85+-orange.svg)
+[![Rust](https://img.shields.io/badge/rust-1.88.0-orange)](https://www.rust-lang.org)
+[![Edition](https://img.shields.io/badge/edition-2024-blue)](https://doc.rust-lang.org/edition-guide/rust-2024/index.html)
 [![Crates.io](https://img.shields.io/crates/v/fido_mds3_attestation_ca)](https://crates.io/crates/fido_mds3_attestation_ca)
 [![GitHub](https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white)](https://github.com/GaneshJadhavOnGitHub/fido_mds3_attestation_ca)
 [![Docs.rs](https://img.shields.io/badge/Docs.rs-000000?logo=docs.rs&logoColor=white)](https://docs.rs/fido_mds3_attestation_ca/latest)
@@ -11,7 +12,6 @@ FIDO Metadata Service (MDS3) for **WebAuthn authenticator verification**.
 
 Compatible with the `webauthn-rs` crate — returns `webauthn_rs::prelude::AttestationCaList` directly.
 
-MSRV: 1.85 (2024 edition)
 
 ####   Crate Overview
 
@@ -92,7 +92,7 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = "0.1.1-alpha.4"
+fido_mds3_attestation_ca = "0.1.1-rc.1"
 ```
 
 * **Embedded Mode (Optional):** If your application runs in an air-gapped or offline environment where downloading metadata is restricted, you can choose to bake the metadata snapshot directly into your binary to serve as a permanent fallback. But this will increase the size of your binary.
@@ -101,7 +101,7 @@ To enable the permanent offline fallback, add the `embedded` feature in your `Ca
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = { version = "0.1.1-alpha.4", features = ["embedded"] }
+fido_mds3_attestation_ca = { version = "0.1.1-rc.1", features = ["embedded"] }
 ```
 
 
@@ -205,7 +205,7 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = "0.1.1-alpha.4"
+fido_mds3_attestation_ca = "0.1.1-rc.1"
 ```
 ### Embedded Mode (Optional)
 
@@ -213,7 +213,7 @@ Add the crate to your `Cargo.toml` with `features = ["embedded"]`
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = { version = "0.1.1-alpha.4", features = ["embedded"] }
+fido_mds3_attestation_ca = { version = "0.1.1-rc.1", features = ["embedded"] }
 ```
 
 ---
@@ -234,10 +234,10 @@ use fido_mds3_attestation_ca::build_ca_list;
 use fido_mds3_attestation_ca::types::AttestationFilter;
 
 fn main() {
-    let ca_list = build_ca_list(AttestationFilter::TrustAnchors)
+    let attestation_ca_list = build_ca_list(AttestationFilter::TrustAnchors)
         .expect("Failed to build CA list");
 
-    println!("Total number of trust anchors: {}", ca_list.len());
+    println!("Total number of trust anchors: {}", attestation_ca_list.len());
 }
 ```
 
@@ -254,11 +254,11 @@ use fido_mds3_attestation_ca::build_ca_list;
 use fido_mds3_attestation_ca::types::AttestationFilter;
 
 fn main() {
-    let ca_list = build_ca_list(
+    let attestation_ca_list = build_ca_list(
         AttestationFilter::FidoCertifiedTrustAnchorsOnly
     ).expect("Failed to build CA list");
 
-    println!("Total number of FIDO certified anchors: {}", ca_list.len());
+    println!("Total number of FIDO certified anchors: {}", attestation_ca_list.len());
 }
 ```
 
@@ -271,7 +271,7 @@ This returns only authenticators whose **latest status indicates FIDO Certified*
 This crate is compatible with:
 
 ```toml
-webauthn-rs = "0.5.4"
+webauthn-rs = "0.6.0-dev"
 ```
 
 The generated `AttestationCaList` can be passed directly to

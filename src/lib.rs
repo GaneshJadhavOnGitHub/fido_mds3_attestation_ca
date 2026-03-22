@@ -7,7 +7,7 @@
 //! ## Compatibility
 //!
 //! This crate is designed to work with
-//! [`webauthn-rs`](https://crates.io/crates/webauthn-rs) **v0.5.4**.
+//! [`webauthn-rs`](https://crates.io/crates/webauthn-rs) **v0.6.0-dev**.
 //!
 //!
 //! ## Typical Flow
@@ -209,7 +209,7 @@ static EMBEDDED_PARSED: Lazy<Arc<ParsedBlob>> = Lazy::new(|| {
 
         match parser::parse_blob(EMBEDDED_JWT) {
             Ok(parsed) => {
-                log::info!("Embedded CA list parsed successfully.");
+                log::debug!("Embedded CA list parsed successfully.");
                 Arc::new(parsed)
             }
             Err(e) => {
@@ -396,7 +396,7 @@ impl ParsedBlob {
                 continue;
             }
         }
-        log::info!("Attestation trust anchor list generated successfully!");
+        log::debug!("Attestation trust anchor list generated successfully!");
         Ok(builder.build())
     }
 
@@ -530,7 +530,7 @@ impl ParsedBlob {
                 }
             }
         }
-        log::info!("CA list of FIDO certified trust anchors generated successfully!");
+        log::debug!("CA list of FIDO certified trust anchors generated successfully!");
         Ok(builder.build())
     }
 
