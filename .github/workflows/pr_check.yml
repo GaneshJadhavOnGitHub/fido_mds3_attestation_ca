@@ -1,7 +1,7 @@
 name: PR Check
 
 on:
-  pull_request:  # Triggers on PR to ANY branch
+  pull_request:  # Triggers on PR to ANY branch.
 
 env:
   CARGO_TERM_COLOR: always

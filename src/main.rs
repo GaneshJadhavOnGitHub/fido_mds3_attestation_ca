@@ -227,10 +227,10 @@ mod download {
         // Lock file to prevent concurrent downloads
         let lock_path = jwt_path.with_extension("lock");
 
-        // Remove stale lock (older than 5 minutes)
+        // Remove stale lock (older than 2 minutes)
         if let Ok(meta) = std::fs::metadata(&lock_path) {
             if let Ok(modified) = meta.modified() {
-                if modified.elapsed().unwrap_or_default().as_secs() > 300 {
+                if modified.elapsed().unwrap_or_default().as_secs() > 120 {
                     let _ = std::fs::remove_file(&lock_path);
                 }
             }
@@ -245,7 +245,7 @@ mod download {
             Err(_) => {
                 log::error!("❌ Another download is already running.");
                 return Err(FidoMds3AttestationCaError::DownloadError(
-                    "Another process is downloading the blob".into(),
+                    "Another process is downloading the blob, please try after some time.".into(),
                 ));
             }
         };
@@ -310,7 +310,7 @@ mod download {
 
         pb.finish_with_message("Download complete");
 
-        // Copy downloaded JWT to embedded location (replaces old one)
+        // Copy downloaded JWT to embedded location (replaces old one).
         match fs::copy(&jwt_path, EMBEDDED_JWT_PATH) {
             Ok(_) => {
                 if let Ok(file) = File::open(EMBEDDED_JWT_PATH) {
@@ -346,11 +346,11 @@ mod download {
             }
         }
         log::debug!(
-            "✓ FIDO MDS3 blob saved to: {} And will be loaded on next restart.",
+            "✓ FIDO MDS3 blob saved to: '{}'. It will be loaded on next restart.",
             jwt_path.display()
         );
         println!(
-            "✓ FIDO MDS3 blob saved to: {} And will be loaded on next restart.",
+            "✓ FIDO MDS3 blob saved to: '{}'. It will be loaded on next restart.",
             jwt_path.display()
         );
 

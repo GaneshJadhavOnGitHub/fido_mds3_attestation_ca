@@ -1,5 +1,6 @@
 //! Module to initialize logger for tests
 
+// Import required crate.
 use std::sync::Once;
 
 static INIT: Once = Once::new();

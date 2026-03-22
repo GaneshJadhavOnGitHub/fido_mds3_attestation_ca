@@ -1,9 +1,9 @@
 name: fido_mds3_attestation_ca_ci
 
 on:
-  push:
+  push:                       # Triggers on push
     branches: [main, master]
-  pull_request:
+  pull_request:              
     branches: [main, master]
 
 env:

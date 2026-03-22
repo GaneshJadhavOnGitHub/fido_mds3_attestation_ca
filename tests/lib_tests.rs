@@ -20,7 +20,7 @@ fn test_fallback_behavior() {
 
     #[cfg(feature = "embedded")]
     {
-        // If feature is ON, the list should NOT be empty
+        // If feature is ON, the list should NOT be empty.
         assert!(
             !list.cas.is_empty(),
             "Embedded list should contain data when 'embedded' feature is enabled"

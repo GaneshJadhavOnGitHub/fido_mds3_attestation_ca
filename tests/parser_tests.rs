@@ -108,7 +108,7 @@ fn test_extract_ca_entry_with_no_metadata() {
 
     let entry = &entries[0];
 
-    // Should still return an entry, but with "No cert" markers
+    // Should still return an entry, but with "No cert" markers.
     assert_eq!(entry.aaguid, Some("test-guid".to_string()));
     assert_eq!(entry.certificate_pem, "No attestation root certificate");
 }

@@ -60,8 +60,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved README.md
 
 ## [0.1.1-rc.1] - 2026-03-22
-
-- Added support for webauthn-rs version 0.6.0-dev.
 - Improved log messages in loader and cli tool.
 - Improved README.md
 
+## [0.1.1-rc.2] - 2026-03-22
+- Added support for webauthn-rs version 0.6.0-dev.
+- Improved rustdoc comments.

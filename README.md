@@ -68,18 +68,18 @@ to verify authenticator attestation statements.
 
 ---
 
-## How it works - Metadata Strategy (Download → Build → Fallback)
+## How it works - Metadata Strategy (Download → Initialize → Fallback)
 
 The crate uses a **three-step strategy** for loading metadata:
 
 1. **Download (Recommended)** – 
-   Use the provided CLI tool to download the latest **MDS3 BLOB**.
+   Everytime use the provided CLI tool to download the latest **MDS3 BLOB**.
 
-2. **Build** – 
+2. **Initialize** – 
    The library parses the BLOB, builds a list of **attestation trust anchors**, and caches this list for subsequent calls.
 
 3. **Fallback** – 
-   If a local BLOB is unavailable, the crate checks for an **embedded metadata snapshot**. 
+   If download fails or a local BLOB is unavailable, the crate checks for an **embedded metadata snapshot**. 
    **Note:** This fallback is only active if the `embedded` feature is enabled during compilation.
 
 ### 📦 Choosing your Build Strategy
@@ -92,7 +92,7 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = "0.1.1-rc.1"
+fido_mds3_attestation_ca = "0.1.1-rc.2"
 ```
 
 * **Embedded Mode (Optional):** If your application runs in an air-gapped or offline environment where downloading metadata is restricted, you can choose to bake the metadata snapshot directly into your binary to serve as a permanent fallback. But this will increase the size of your binary.
@@ -101,7 +101,7 @@ To enable the permanent offline fallback, add the `embedded` feature in your `Ca
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = { version = "0.1.1-rc.1", features = ["embedded"] }
+fido_mds3_attestation_ca = { version = "0.1.1-rc.2", features = ["embedded"] }
 ```
 
 
@@ -205,7 +205,7 @@ Add the crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = "0.1.1-rc.1"
+fido_mds3_attestation_ca = "0.1.1-rc.2"
 ```
 ### Embedded Mode (Optional)
 
@@ -213,7 +213,7 @@ Add the crate to your `Cargo.toml` with `features = ["embedded"]`
 
 ```toml
 [dependencies]
-fido_mds3_attestation_ca = { version = "0.1.1-rc.1", features = ["embedded"] }
+fido_mds3_attestation_ca = { version = "0.1.1-rc.2", features = ["embedded"] }
 ```
 
 ---

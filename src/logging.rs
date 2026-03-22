@@ -28,7 +28,7 @@
 ///
 /// fn main() {
 ///     init_logger();
-///     log::info!("Application started");
+///     log::info!("Application started.");
 /// }
 /// ```
 ///

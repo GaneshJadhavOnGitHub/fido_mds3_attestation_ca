@@ -12,7 +12,7 @@
 //! The download process is designed to be robust and safe:
 //!
 //! - Uses a **network timeout** to avoid hanging requests.
-//! - Handles **HTTP rate limiting (429)** explicitly.
+//! - Handles **HTTP rate limiting (Error 429)** explicitly.
 //! - Writes the file using a **temporary file and atomic rename**
 //!   to prevent partially written files.
 //! - Uses a **lock file** to prevent multiple processes from

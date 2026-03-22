@@ -36,8 +36,6 @@
 //!
 //! - JWT payload decoding uses **URL-safe Base64 without padding**.
 //! - Certificates inside metadata entries use **standard Base64**.
-//! - Only the **first attestation root certificate** is currently used
-//!   when multiple are present.
 //!
 //! # Security Consideration
 //!

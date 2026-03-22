@@ -1,4 +1,4 @@
-//! Custom error handler for crate.
+//! Custom error handler for the crate.
 //!
 //! This module defines the unified error type used across the
 //! `fido-mds3-attestation-ca` crate. All operations in the crate

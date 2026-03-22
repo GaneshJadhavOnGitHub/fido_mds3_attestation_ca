@@ -124,7 +124,7 @@ static FIDO_CERTIFIED_CACHE: OnceLock<AttestationCaList> = OnceLock::new();
 /// - `dirs` crate documentation: <https://docs.rs/dirs/latest/dirs/>
 /// - Rust filesystem APIs: <https://doc.rust-lang.org/std/fs/>
 pub fn universal_user_path() -> Result<PathBuf, FidoMds3AttestationCaError> {
-    // 1. Determine the base directory
+    // 1. Determine the base directory.
     let base_dir = match dirs::data_local_dir().or_else(dirs::data_dir) {
         Some(dir) => dir,
         None => {
@@ -139,7 +139,7 @@ pub fn universal_user_path() -> Result<PathBuf, FidoMds3AttestationCaError> {
     let app_dir = base_dir.join(crate_name);
     let full_path = app_dir.join(BLOB_FILE_NAME);
 
-    // 2. Self-Healing: Ensure the directory exists
+    // 2. Self-Healing: Ensure the directory exists.
     if !app_dir.exists() {
         match std::fs::create_dir_all(&app_dir) {
             Ok(_) => log::debug!("Created application data directory at: {app_dir:?}"),
@@ -152,7 +152,7 @@ pub fn universal_user_path() -> Result<PathBuf, FidoMds3AttestationCaError> {
         }
     }
 
-    // This is useful for debugging but should be 'debug' level to avoid terminal noise
+    // This is useful for debugging but should be 'debug' level to avoid terminal noise.
     log::debug!("LIB : Universal path resolved to: {full_path:?}");
 
     Ok(full_path)

@@ -182,7 +182,7 @@ pub struct CaEntry {
     /// Protocol family (fido2, u2f, etc.)
     pub protocol_family: String,
 
-    /// raw metadata entry preserved for AAID (U2F).
+    /// Raw metadata entry preserved for AAID (U2F).
     pub raw_data: Option<Arc<serde_json::Value>>,
 }
 

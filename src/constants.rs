@@ -1,6 +1,6 @@
 //! Constants used in the crate.
 
-/// URL to download Fido Mds3 blob
+/// URL to download Fido Mds3 blob.
 pub const BLOB_URL: &str = "https://mds3.fidoalliance.org/";
 
 /// Blob file name to be used.

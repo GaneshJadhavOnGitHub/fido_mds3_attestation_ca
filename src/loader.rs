@@ -207,7 +207,7 @@ pub fn load_jwt() -> Result<Arc<ParsedBlob>, FidoMds3AttestationCaError> {
         log::error!("No cached blob found.");
     }
 
-    // 2️⃣ Download fresh blob
+    // 2️⃣ Download fresh blob.
     log::debug!("Attempting to download latest FIDO MDS3 blob...");
 
     match download_latest_blob() {
@@ -232,7 +232,7 @@ pub fn load_jwt() -> Result<Arc<ParsedBlob>, FidoMds3AttestationCaError> {
         }
     }
 
-    // 3️⃣ Final fallback
+    // 3️⃣ Final fallback if embedded feature is enabled.
     log::debug!("Using embedded CA list as final fallback.");
     Ok(embedded_ca_list())
 }

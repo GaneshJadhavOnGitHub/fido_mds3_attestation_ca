@@ -1,7 +1,10 @@
 .
+├── bin
+│   └── act
 ├── build.rs
 ├── Cargo.lock
 ├── Cargo.toml
+├── CHANGELOG.md
 ├── data
 │   └── ca_list.jwt
 ├── examples
@@ -26,4 +29,4 @@
     ├── lib_tests.rs
     └── parser_tests.rs
 
-5 directories, 21 files
+6 directories, 23 files

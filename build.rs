@@ -157,7 +157,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         log::debug!("Using cached blob at {cache_path:?}");
         return Ok(());
     }
-
     //println!("cargo:warning=[Build Info] Wait a while , a fresh copy of FIDO MDS3 blob will be downloaded.");
 
     match download_blob(&cache_path) {

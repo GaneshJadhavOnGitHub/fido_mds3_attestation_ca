@@ -33,7 +33,7 @@
 //! cargo run --example basic_usage
 //! ```
 //!
-//! # References
+//! # References:
 //!
 //! - FIDO Metadata Service: https://fidoalliance.org/metadata/
 //! - WebAuthn specification (attestation model): https://www.w3.org/TR/webauthn/
